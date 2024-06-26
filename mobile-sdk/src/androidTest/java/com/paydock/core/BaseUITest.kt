@@ -1,0 +1,52 @@
+package com.paydock.core
+
+import android.content.Context
+import com.paydock.MobileSDK
+import com.paydock.core.domain.model.Environment
+import com.paydock.initializeMobileSDK
+import io.mockk.clearAllMocks
+import io.mockk.every
+import io.mockk.mockk
+import org.junit.After
+import org.junit.Before
+import org.junit.Rule
+import org.koin.core.context.stopKoin
+import org.koin.test.KoinTest
+import org.koin.test.mock.MockProviderRule
+import org.mockito.Mockito
+
+abstract class BaseUITest : KoinTest {
+
+    @get:Rule
+    val mockProvider = MockProviderRule.create { clazz ->
+        Mockito.mock(clazz.java)
+    }
+
+    private lateinit var context: Context
+
+    @Before
+    fun setUpMocks() {
+        // Mock the Context object
+        context = mockk()
+        // Configure the getApplicationContext() method to return the mock Context
+        every { context.applicationContext } returns context
+
+        val publicKey = "sample_public_key"
+        val environment = Environment.PRE_PRODUCTION
+
+        context.initializeMobileSDK(publicKey, environment)
+    }
+
+    @After
+    fun tearDownMocks() {
+        clearAllMocks()
+        MobileSDK.reset() // Reset MobileSDK before each test
+    }
+
+    @After
+    fun tearDownKoin() {
+        // As the SDK will startKoin, we need to ensure that after each test we stop koin to be able to restart it in each test
+        stopKoin()
+    }
+
+}

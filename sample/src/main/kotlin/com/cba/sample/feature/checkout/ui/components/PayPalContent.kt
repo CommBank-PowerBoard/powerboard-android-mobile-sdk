@@ -1,0 +1,18 @@
+package com.cba.sample.feature.checkout.ui.components
+
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import com.cba.sample.feature.checkout.CheckoutViewModel
+import com.paydock.feature.paypal.presentation.PayPalWidget
+import com.paydock.feature.wallet.domain.model.WalletType
+
+@Composable
+fun PayPalContent(viewModel: CheckoutViewModel) {
+    PayPalWidget(
+        modifier = Modifier.fillMaxWidth(),
+        token = viewModel.getWalletToken(WalletType.PAY_PAL),
+        requestShipping = false,
+        completion = viewModel::handleChargeResult
+    )
+}
