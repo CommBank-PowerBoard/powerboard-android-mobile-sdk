@@ -17,7 +17,7 @@ details.
 
 # How to install and configure the SDK
 
-1. Setup the CommBank-Powerboard API Integration by [contacting Paydock](https://paydock.com/contact-us/) to
+1. Setup the CommBank-Powerboard API Integration by [contacting CommBank-Powerboard](https://paydock.com/contact-us/) to
    signup for a sandbox account, and then following
    our [integration guide](https://docs.paydock.com/#getting-started) .
 2. [Setup](https://github.com/PayDock/mobile-sdk-doc/blob/main/setup/installation.md#setup-the-paydock-android-sdk)
