@@ -69,7 +69,7 @@ android {
 }
 
 publishingConfig {
-    groupId = "com.cba"
+    groupId = "com.commbank-powerboard"
     version = "1.1.0"
     artifactId = "mobile-sdk"
     projectGithubUrl = "https://github.com/CommBank-PowerBoard/powerboard-android-mobile-sdk"
