@@ -1,4 +1,5 @@
 ![GitHub Release](https://img.shields.io/github/v/release/CommBank-PowerBoard/powerboard-android-mobile-sdk)
+[![](https://www.jitpack.io/v/CommBank-PowerBoard/powerboard-android-mobile-sdk.svg)](https://www.jitpack.io/#CommBank-PowerBoard/powerboard-android-mobile-sdk)
 
 # Project Description
 
@@ -17,21 +18,21 @@ details.
 
 # How to install and configure the SDK
 
-1. Setup the CommBank-Powerboard API Integration by [contacting CommBank-Powerboard](https://paydock.com/contact-us/) to
+1. Setup the CommBank-Powerboard API Integration by [contacting CommBank-Powerboard](https://www.commbank.com.au/business/payments/take-online-payments/powerboard.html#support) to
    signup for a sandbox account, and then following
-   our [integration guide](https://docs.paydock.com/#getting-started) .
-2. [Setup](https://github.com/PayDock/mobile-sdk-doc/blob/main/setup/installation.md#setup-the-paydock-android-sdk)
+   our [integration guide](https://developer.powerboard.commbank.com.au/reference/mobile-sdk-initialise) .
+2. [Setup](https://developer.powerboard.commbank.com.au/reference/mobile-sdk-installation#setup-the-powerboard-android-sdk)
    the iOS or Android SDK.
-3. [Configure](https://github.com/PayDock/mobile-sdk-doc/blob/main/setup/installation.md#step-1-configure-repository-access-1)
+3. [Configure](https://developer.powerboard.commbank.com.au/reference/mobile-sdk-installation#step-1-configure-repository-access)
    repository access.
-4. [Add](https://github.com/PayDock/mobile-sdk-doc/blob/main/setup/installation.md#step-2-add-sdk-dependency-1)
+4. [Add](https://developer.powerboard.commbank.com.au/reference/mobile-sdk-installation#step-2-add-sdk-dependency)
    the SDK dependency to your app.
 5. Use the following guide
-   to [initialize](https://github.com/PayDock/mobile-sdk-doc/blob/main/setup/initialise.md#initialize-the-android-sdk)
+   to [initialize](https://developer.powerboard.commbank.com.au/reference/mobile-sdk-initialise#initialize-the-android-sdk)
    your SDK.
 
 # Getting Started
 
 Follow
-our [integration guide](https://github.com/PayDock/mobile-sdk-doc/blob/main/setup/integration.md)
+our [integration guide](https://developer.powerboard.commbank.com.au/reference/mobile-sdk-initialise)
 which contains example payment flows that you can integrate into your app.

@@ -1,7 +1,7 @@
 package com.paydock.feature.wallet.mapper
 
 import com.paydock.core.BaseUnitTest
-import com.paydock.core.data.network.dto.Resource
+import com.paydock.core.network.dto.Resource
 import com.paydock.feature.wallet.data.api.dto.CallbackCharge
 import com.paydock.feature.wallet.data.api.dto.CallbackData
 import com.paydock.feature.wallet.data.api.dto.WalletCallbackResponse

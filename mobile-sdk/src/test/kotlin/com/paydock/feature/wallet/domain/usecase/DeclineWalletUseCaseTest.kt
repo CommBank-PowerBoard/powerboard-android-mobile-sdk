@@ -2,11 +2,11 @@ package com.paydock.feature.wallet.domain.usecase
 
 import com.paydock.core.BaseKoinUnitTest
 import com.paydock.core.MobileSDKTestConstants
-import com.paydock.core.data.network.error.ApiErrorResponse
-import com.paydock.core.data.network.error.ErrorSummary
-import com.paydock.core.data.network.error.toApiError
-import com.paydock.core.domain.error.exceptions.ApiException
-import com.paydock.core.extensions.convertToDataClass
+import com.paydock.core.network.dto.error.ApiErrorResponse
+import com.paydock.core.network.dto.error.ErrorSummary
+import com.paydock.core.network.dto.error.toApiError
+import com.paydock.core.network.exceptions.ApiException
+import com.paydock.core.network.extensions.convertToDataClass
 import com.paydock.feature.wallet.data.api.dto.WalletDeclineResponse
 import com.paydock.feature.wallet.data.mapper.asEntity
 import com.paydock.feature.wallet.domain.repository.WalletRepository

@@ -2,10 +2,10 @@ package com.paydock.feature.card.domian.usecase
 
 import com.paydock.core.BaseKoinUnitTest
 import com.paydock.core.MobileSDKTestConstants
-import com.paydock.core.data.network.error.ApiErrorResponse
-import com.paydock.core.data.network.error.ErrorSummary
-import com.paydock.core.domain.error.exceptions.ApiException
-import com.paydock.core.extensions.convertToDataClass
+import com.paydock.core.network.dto.error.ApiErrorResponse
+import com.paydock.core.network.dto.error.ErrorSummary
+import com.paydock.core.network.exceptions.ApiException
+import com.paydock.core.network.extensions.convertToDataClass
 import com.paydock.feature.card.data.api.dto.TokeniseCardRequest
 import com.paydock.feature.card.domain.model.TokenisedCardDetails
 import com.paydock.feature.card.domain.repository.CardDetailsRepository
@@ -43,15 +43,19 @@ class TokeniseCreditCardFlowUseCaseTest : BaseKoinUnitTest() {
                 type = "token",
                 token = MobileSDKTestConstants.Card.MOCK_CARD_TOKEN
             )
-        coEvery { mockRepository.tokeniseCardDetailsFlow(request) } returns flowOf(expectedResult)
+        coEvery {
+            mockRepository.tokeniseCardDetailsFlow(MobileSDKTestConstants.General.MOCK_ACCESS_TOKEN, request)
+        } returns flowOf(expectedResult)
         // WHEN
-        val actualFlowResult = tokeniseCreditCardUseCase(request)
+        val actualFlowResult = tokeniseCreditCardUseCase(MobileSDKTestConstants.General.MOCK_ACCESS_TOKEN, request)
         // THEN
         // Assert the result is success and contains the expected data
         actualFlowResult.collect { result ->
             assertTrue(result.isSuccess)
             assertEquals(expectedResult, result.getOrNull())
-            coVerify(exactly = 1) { mockRepository.tokeniseCardDetailsFlow(request) }
+            coVerify(exactly = 1) {
+                mockRepository.tokeniseCardDetailsFlow(MobileSDKTestConstants.General.MOCK_ACCESS_TOKEN, request)
+            }
         }
     }
 
@@ -70,15 +74,19 @@ class TokeniseCreditCardFlowUseCaseTest : BaseKoinUnitTest() {
                     )
                 )
             )
-        coEvery { mockRepository.tokeniseCardDetailsFlow(request) } returns flow { throw expectedResult }
+        coEvery {
+            mockRepository.tokeniseCardDetailsFlow(MobileSDKTestConstants.General.MOCK_ACCESS_TOKEN, request)
+        } returns flow { throw expectedResult }
         // WHEN
-        val actualFlowResult = tokeniseCreditCardUseCase(request)
+        val actualFlowResult = tokeniseCreditCardUseCase(MobileSDKTestConstants.General.MOCK_ACCESS_TOKEN, request)
         // THEN
         // Assert the result is success and contains the expected data
         actualFlowResult.collect { result ->
             assertTrue(result.isFailure)
             assertEquals(expectedResult, result.exceptionOrNull())
-            coVerify(exactly = 1) { mockRepository.tokeniseCardDetailsFlow(request) }
+            coVerify(exactly = 1) {
+                mockRepository.tokeniseCardDetailsFlow(MobileSDKTestConstants.General.MOCK_ACCESS_TOKEN, request)
+            }
         }
     }
 

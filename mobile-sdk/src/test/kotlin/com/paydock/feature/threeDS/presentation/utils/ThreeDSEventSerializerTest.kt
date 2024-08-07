@@ -1,6 +1,6 @@
 package com.paydock.feature.threeDS.presentation.utils
 
-import com.paydock.core.extensions.convertToDataClass
+import com.paydock.core.network.extensions.convertToDataClass
 import com.paydock.feature.threeDS.presentation.model.ThreeDSEvent
 import com.paydock.feature.threeDS.presentation.model.enum.Event
 import kotlinx.serialization.SerializationException

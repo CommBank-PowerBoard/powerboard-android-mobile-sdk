@@ -46,8 +46,7 @@ class App : Application() {
                 fonts = listOf(AcidGroteskNormal)
             )
         )
-        MobileSDK
-            .Builder(BuildConfig.PUBLIC_KEY)
+        MobileSDK.Builder()
             .environment(Environment.STAGING)
             // Uncomment if wanting to use custom SDK theme
             // .applyTheme(theme)

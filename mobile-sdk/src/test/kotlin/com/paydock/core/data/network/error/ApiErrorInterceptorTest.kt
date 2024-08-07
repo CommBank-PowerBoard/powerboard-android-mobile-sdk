@@ -3,8 +3,9 @@ package com.paydock.core.data.network.error
 import com.paydock.core.BaskMockServerUnitTest
 import com.paydock.core.data.injection.modules.mockApiInterceptorOkHttpModule
 import com.paydock.core.data.injection.modules.mockSuccessNetworkModule
-import com.paydock.core.domain.error.exceptions.ApiException
-import com.paydock.core.domain.error.exceptions.UnknownApiException
+import com.paydock.core.network.dto.error.ApiErrorResponse
+import com.paydock.core.network.exceptions.ApiException
+import com.paydock.core.network.exceptions.UnknownApiException
 import io.ktor.client.plugins.ResponseException
 import io.ktor.client.plugins.ServerResponseException
 import io.ktor.client.request.get
@@ -26,7 +27,7 @@ class ApiErrorInterceptorTest : BaskMockServerUnitTest() {
 
     @Before
     fun setup() {
-        // Unload the mock network module and load the sslSuccessNetworkTestModule.
+        // Unload the mock network module and load the mockApiInterceptorOkHttpModule.
         GlobalContext.unloadKoinModules(mockSuccessNetworkModule)
         GlobalContext.loadKoinModules(mockApiInterceptorOkHttpModule)
     }

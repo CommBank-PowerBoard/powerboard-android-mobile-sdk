@@ -2,12 +2,12 @@ package com.paydock.core.domain.error
 
 import com.paydock.core.domain.error.exceptions.AfterpayException
 import com.paydock.core.domain.error.exceptions.CardDetailsException
+import com.paydock.core.domain.error.exceptions.ClickToPayException
 import com.paydock.core.domain.error.exceptions.GiftCardException
 import com.paydock.core.domain.error.exceptions.GooglePayException
-import com.paydock.core.domain.error.exceptions.MastercardSRCException
 import com.paydock.core.domain.error.exceptions.PayPalException
 import com.paydock.core.domain.error.exceptions.ThreeDSException
-import com.paydock.core.domain.error.exceptions.UnknownApiException
+import com.paydock.core.network.exceptions.UnknownApiException
 import kotlinx.serialization.SerializationException
 import java.io.IOException
 import java.net.SocketTimeoutException
@@ -62,11 +62,11 @@ sealed interface ErrorModel {
     data class PayPalError(val exception: PayPalException) : ErrorModel
 
     /**
-     * Mastercard SRC Error: Represents errors specific to Mastercard SRC functionality.
+     * Click to Pay Error: Represents errors specific to Click to Pay functionality.
      *
-     * @property exception The [Exception] specific to Mastercard SRC.
+     * @property exception The [Exception] specific to Click to Pay.
      */
-    data class MastercardSRCError(val exception: MastercardSRCException) : ErrorModel
+    data class ClickToPayError(val exception: ClickToPayException) : ErrorModel
 
     /**
      * Google Pay Error: Represents errors specific to Google Pay functionality.
@@ -110,7 +110,7 @@ fun Throwable.toError(): ErrorModel {
         is GiftCardException -> ErrorModel.GiftCardError(this)
         is ThreeDSException -> ErrorModel.ThreeDSError(this)
         is PayPalException -> ErrorModel.PayPalError(this)
-        is MastercardSRCException -> ErrorModel.MastercardSRCError(this)
+        is ClickToPayException -> ErrorModel.ClickToPayError(this)
         is GooglePayException -> ErrorModel.GooglePayError(this)
         is AfterpayException -> ErrorModel.AfterpayError(this)
         // Generic

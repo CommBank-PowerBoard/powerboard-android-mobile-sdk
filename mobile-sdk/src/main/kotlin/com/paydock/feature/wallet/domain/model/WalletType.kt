@@ -19,5 +19,5 @@ enum class WalletType(val type: String) {
     /**
      * Afterpay wallet type.
      */
-    AFTER_PAY("afterpay")
+    AFTER_PAY("afterpay"),
 }

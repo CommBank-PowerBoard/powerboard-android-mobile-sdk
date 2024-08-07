@@ -56,7 +56,7 @@ fun HorizontalTabButtonCarousel(
                         onTabSelected(tab)
                     }
 
-                    WidgetType.MASTERCARD_SRC -> MastercardSRCTabButton(isSelected = tab == selectedTab) {
+                    WidgetType.CLICK_TO_PAY -> ClickToPayTabButton(isSelected = tab == selectedTab) {
                         onTabSelected(tab)
                     }
 
@@ -83,7 +83,11 @@ fun HorizontalTabButtonCarousel(
 @Composable
 private fun HorizontalTabButtonCarouselPreview() {
     val supportedPaymentMethods =
-        listOf(WidgetType.CREDIT_CARD_DETAILS, WidgetType.GOOGLE_PAY, WidgetType.PAY_PAL)
+        listOf(
+            WidgetType.CREDIT_CARD_DETAILS,
+            WidgetType.GOOGLE_PAY,
+            WidgetType.PAY_PAL
+        )
     SampleTheme {
         HorizontalTabButtonCarousel(
             modifier = Modifier.fillMaxWidth(),

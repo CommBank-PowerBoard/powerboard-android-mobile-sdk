@@ -15,9 +15,15 @@ class CardRepositoryImpl @Inject constructor(
     private val cardApi: CardApi
 ) : CardRepository {
 
-    override suspend fun tokeniseCardDetails(request: TokeniseCardRequest): String =
+    override suspend fun tokeniseCardDetails(
+        accessToken: String,
+        request: TokeniseCardRequest
+    ): String =
         withContext(dispatcher) {
-            cardApi.tokeniseCardDetails(request = request).resource.resourceData
+            cardApi.tokeniseCardDetails(
+                accessToken = accessToken,
+                request = request
+            ).resource.resourceData
         }
 
     override suspend fun createCardVaultToken(request: VaultTokenRequest.CreateCardVaultTokenRequest): String =

@@ -26,10 +26,10 @@ fun Environment.mapToBaseUrl(): String = when (this) {
  * @receiver Environment The environment for which the SSL pin string is required.
  * @return String The corresponding SSL pin string for the given environment.
  */
-fun Environment.mapToSSLPin(): String = when (this) {
-    Environment.PRODUCTION -> ClientSDKConstants.SSLPin.PROD
-    Environment.PRE_PRODUCTION -> ClientSDKConstants.SSLPin.PRE_PRODUCTION
-    Environment.STAGING -> ClientSDKConstants.SSLPin.STAGING
+fun Environment.mapToSSLPin(): List<String> = when (this) {
+    Environment.PRODUCTION -> listOf(ClientSDKConstants.SSLPin.PROD)
+    Environment.PRE_PRODUCTION -> listOf(ClientSDKConstants.SSLPin.PRE_PRODUCTION)
+    Environment.STAGING -> listOf(ClientSDKConstants.SSLPin.STAGING)
 }
 
 /**

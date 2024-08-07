@@ -9,6 +9,7 @@ internal object ClientSDKConstants {
      * HTML Widget ID used to load Client SDK widgets into.
      */
     internal const val WIDGET_CONTAINER_ID = "widgetContainer"
+    internal const val WIDGET_ID = "cba"
 
     /**
      * URL of the JavaScript library for the Client SDK.
@@ -44,9 +45,9 @@ internal object ClientSDKConstants {
      * - `STAGING`: SSL pin for the staging environment.
      */
     object SSLPin {
-        internal const val PROD = "sha256/IyTwS67ZnIKzBQmXJoZfiF7bMaLPnqX6mY6vSYCv2Ns="
-        internal const val PRE_PRODUCTION = "sha256/qYFbu+dE4nuevdBEEpuPZ5zY6j5tCrqp7hD75XQxitU="
-        internal const val STAGING = "sha256/Dc4yfwpXlifANUEh9SEbXkURulKVVAO2ZbkTsl1LBjc="
+        internal const val PROD = "sha256/ANeVqeyziLbTX8TPdQWbFGVb9VXpDDIMvYuDIwORdKU="
+        internal const val PRE_PRODUCTION = "sha256/qKd2CMivb7/p4pfHpSEgnTBLlC0DapGIg5deIqBmmSM="
+        internal const val STAGING = "sha256/R52wq7mz8B99wah+Vj5xtnS4GHWuCZBOP3aP+GjEOpU="
     }
 
 }

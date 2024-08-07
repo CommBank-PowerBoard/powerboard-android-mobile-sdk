@@ -1,16 +1,29 @@
 package com.cba.sample.feature.widgets.ui.models
 
-enum class WidgetType {
-    ADDRESS_DETAILS, AFTER_PAY, CREDIT_CARD_DETAILS, GOOGLE_PAY, GIFT_CARD_DETAILS, INTEGRATED_3DS, MASTERCARD_SRC, PAY_PAL
-}
+import com.cba.sample.designsystems.components.list.DisplayableListItem
 
-fun WidgetType.displayName(): String = when (this) {
-    WidgetType.ADDRESS_DETAILS -> "Address"
-    WidgetType.AFTER_PAY -> "Afterpay"
-    WidgetType.CREDIT_CARD_DETAILS -> "Credit Card Details"
-    WidgetType.GIFT_CARD_DETAILS -> "Gift Card Details"
-    WidgetType.GOOGLE_PAY -> "Google Pay"
-    WidgetType.INTEGRATED_3DS -> "Integrated 3DS"
-    WidgetType.MASTERCARD_SRC -> "Mastercard SRC"
-    WidgetType.PAY_PAL -> "PayPal"
+enum class WidgetType : DisplayableListItem {
+    ADDRESS_DETAILS, AFTER_PAY, CREDIT_CARD_DETAILS, GOOGLE_PAY, GIFT_CARD_DETAILS, INTEGRATED_3DS, CLICK_TO_PAY, PAY_PAL;
+
+    override fun displayName(): String = when (this) {
+        ADDRESS_DETAILS -> "Address"
+        AFTER_PAY -> "Afterpay"
+        CLICK_TO_PAY -> "Click to Pay"
+        CREDIT_CARD_DETAILS -> "Card Details"
+        GIFT_CARD_DETAILS -> "Gift Card"
+        GOOGLE_PAY -> "Google Pay"
+        INTEGRATED_3DS -> "Integrated 3DS"
+        PAY_PAL -> "PayPal"
+    }
+
+    override fun displayDescription(): String = when (this) {
+        ADDRESS_DETAILS -> "Capture customer address form"
+        AFTER_PAY -> "Standalone Afterpay button"
+        CLICK_TO_PAY -> "ClickToPay flow"
+        CREDIT_CARD_DETAILS -> "Tokensise card details"
+        GIFT_CARD_DETAILS -> "Tokensise card details"
+        GOOGLE_PAY -> "Standalone Google Pay button"
+        INTEGRATED_3DS -> "Integrated 3DS flow"
+        PAY_PAL -> "Standalone PayPal button"
+    }
 }

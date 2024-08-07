@@ -1,9 +1,10 @@
 package com.paydock.feature.card.data.repository
 
 import com.paydock.core.BaseKoinUnitTest
+import com.paydock.core.MobileSDKTestConstants
 import com.paydock.core.data.injection.modules.mockFailureNetworkModule
 import com.paydock.core.data.injection.modules.mockSuccessNetworkModule
-import com.paydock.core.extensions.convertToDataClass
+import com.paydock.core.network.extensions.convertToDataClass
 import com.paydock.feature.card.data.api.dto.TokeniseCardRequest
 import com.paydock.feature.card.data.api.dto.TokeniseCardResponse
 import com.paydock.feature.card.data.mapper.asEntity
@@ -41,7 +42,7 @@ class CardDetailsRepositoryTest : BaseKoinUnitTest() {
                 readResourceFile("card/success_card_token_response.json").convertToDataClass<TokeniseCardResponse>()
             val entity = response.asEntity()
             // WHEN - Call the method to be tested
-            val result = repository.tokeniseCardDetails(request)
+            val result = repository.tokeniseCardDetails(MobileSDKTestConstants.General.MOCK_ACCESS_TOKEN, request)
             // THEN - Verify the result
             assertNotNull(response)
             assertEquals(entity, result)
@@ -57,7 +58,7 @@ class CardDetailsRepositoryTest : BaseKoinUnitTest() {
             val request =
                 readResourceFile("card/invalid_tokenise_credit_card_request.json").convertToDataClass<TokeniseCardRequest.CreditCard>()
             // WHEN - Call the method to be tested
-            val result = repository.tokeniseCardDetails(request)
+            val result = repository.tokeniseCardDetails(MobileSDKTestConstants.General.MOCK_ACCESS_TOKEN, request)
             // THEN - It should throw an exception
             assertNotNull(result)
         }
@@ -74,7 +75,7 @@ class CardDetailsRepositoryTest : BaseKoinUnitTest() {
             val entity = response.asEntity()
 
             // WHEN - Call the method to be tested
-            val resultFlow = repository.tokeniseCardDetailsFlow(request)
+            val resultFlow = repository.tokeniseCardDetailsFlow(MobileSDKTestConstants.General.MOCK_ACCESS_TOKEN, request)
 
             // THEN - Verify the result
             resultFlow.collect { result ->
@@ -93,7 +94,7 @@ class CardDetailsRepositoryTest : BaseKoinUnitTest() {
             val request =
                 readResourceFile("card/invalid_tokenise_credit_card_request.json").convertToDataClass<TokeniseCardRequest.CreditCard>()
             // WHEN - Call the method to be tested
-            val tokenisedCardDetailsFlow = repository.tokeniseCardDetailsFlow(request)
+            val tokenisedCardDetailsFlow = repository.tokeniseCardDetailsFlow(MobileSDKTestConstants.General.MOCK_ACCESS_TOKEN, request)
             // THEN - It should throw an exception
             val result = tokenisedCardDetailsFlow.catch { throwable ->
                 // Handle the exception and return a default value or throw it again if needed
@@ -114,7 +115,7 @@ class CardDetailsRepositoryTest : BaseKoinUnitTest() {
                 readResourceFile("card/success_card_token_response.json").convertToDataClass<TokeniseCardResponse>()
             val entity = response.asEntity()
             // WHEN - Call the method to be tested
-            val result = repository.tokeniseCardDetails(request)
+            val result = repository.tokeniseCardDetails(MobileSDKTestConstants.General.MOCK_ACCESS_TOKEN, request)
             // THEN - Verify the result
             assertNotNull(response)
             assertEquals(entity, result)
@@ -130,7 +131,7 @@ class CardDetailsRepositoryTest : BaseKoinUnitTest() {
             val request =
                 readResourceFile("card/invalid_tokenise_gift_card_request.json").convertToDataClass<TokeniseCardRequest.GiftCard>()
             // WHEN - Call the method to be tested
-            val result = repository.tokeniseCardDetails(request)
+            val result = repository.tokeniseCardDetails(MobileSDKTestConstants.General.MOCK_ACCESS_TOKEN, request)
             // THEN - It should throw an exception
             assertNotNull(result)
         }

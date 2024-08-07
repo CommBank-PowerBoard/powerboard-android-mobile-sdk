@@ -15,13 +15,11 @@ import com.paydock.core.domain.model.Environment
  * This class represents the Mobile SDK and serves as the central access point for interacting with the SDK's features.
  *
  * @param context The Android application context used for initializing the Mobile SDK and its dependencies.
- * @param publicKey The public key used for authentication with the backend services.
  * @param environment The environment for the Mobile SDK, which determines the API endpoint to use (e.g., production, sandbox, staging).
  * @param initialSdkTheme The initial theme to be applied across the Mobile SDK (colours, dimensions and font)
  */
 class MobileSDK(
     context: Context,
-    internal val publicKey: String,
     val environment: Environment,
     initialSdkTheme: MobileSDKTheme
 ) {
@@ -57,17 +55,15 @@ class MobileSDK(
             koinContext = MobileSDKKoinContext(context)
         }
 
-        // Determine the base URL based on the specified environment.
         baseUrl = environment.mapToBaseUrl()
     }
 
     /**
      * Builder pattern for initializing the MobileSDK.
      *
-     * @param publicKey The public key to use for authentication.
      * @property environment The environment to use (default: Environment.PRODUCTION).
      */
-    class Builder(private val publicKey: String) {
+    class Builder {
         private var sdkTheme: MobileSDKTheme = MobileSDKTheme()
         private var environment: Environment = Environment.PRODUCTION
 
@@ -84,7 +80,7 @@ class MobileSDK(
          * @param context The application context.
          */
         fun build(context: Context): MobileSDK {
-            return initialize(context, publicKey, environment, sdkTheme)
+            return initialize(context, environment, sdkTheme)
         }
     }
 
@@ -93,8 +89,8 @@ class MobileSDK(
 
         /**
          * Initializes the MobileSDK with the provided configuration.
+         *
          * @param context The application context.
-         * @param publicKey The public key to use for authentication.
          * @param environment The environment to use (default: Environment.PRODUCTION).
          * @param sdkTheme The theme to be applied to SDK components
          * @throws IllegalStateException if MobileSDK is already initialized.
@@ -103,18 +99,23 @@ class MobileSDK(
         @Synchronized
         internal fun initialize(
             context: Context,
-            publicKey: String,
             environment: Environment = Environment.PRODUCTION,
             sdkTheme: MobileSDKTheme = MobileSDKTheme()
         ): MobileSDK {
             if (instance != null) {
                 error(IllegalStateException("MobileSDK is already initialized."))
             }
-            return MobileSDK(context, publicKey, environment, sdkTheme).let {
+            return MobileSDK(context, environment, sdkTheme).let {
                 instance = it
                 it
             }
         }
+
+        /*
+         * Public function to check if the MobileSDK has been initialised already
+         */
+        @JvmStatic
+        fun isInitialised(): Boolean = instance != null
 
         /**
          * Gets the instance of the MobileSDK.
@@ -137,13 +138,12 @@ class MobileSDK(
 
 /**
  * Initializes the MobileSDK with the provided configuration using the application context.
- * @param publicKey The public key to use for authentication.
+ *
  * @param environment The environment to use (default: Environment.PRODUCTION).
  * @param sdkTheme The theme to be applied to SDK components
  */
 @Synchronized
 fun Context.initializeMobileSDK(
-    publicKey: String,
     environment: Environment = Environment.PRODUCTION,
     sdkTheme: MobileSDKTheme = MobileSDKTheme()
-): MobileSDK = MobileSDK.initialize(this, publicKey, environment, sdkTheme)
+): MobileSDK = MobileSDK.initialize(this, environment, sdkTheme)

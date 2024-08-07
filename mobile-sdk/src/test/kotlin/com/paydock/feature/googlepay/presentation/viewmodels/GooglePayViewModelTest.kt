@@ -4,11 +4,11 @@ import app.cash.turbine.test
 import com.google.android.gms.wallet.PaymentsClient
 import com.paydock.core.BaseKoinUnitTest
 import com.paydock.core.MobileSDKTestConstants
-import com.paydock.core.data.network.error.ApiErrorResponse
-import com.paydock.core.data.network.error.ErrorSummary
 import com.paydock.core.data.util.DispatchersProvider
-import com.paydock.core.domain.error.exceptions.ApiException
 import com.paydock.core.domain.error.exceptions.GooglePayException
+import com.paydock.core.network.dto.error.ApiErrorResponse
+import com.paydock.core.network.dto.error.ErrorSummary
+import com.paydock.core.network.exceptions.ApiException
 import com.paydock.core.utils.MainDispatcherRule
 import com.paydock.feature.charge.domain.model.ChargeResponse
 import com.paydock.feature.wallet.domain.usecase.CaptureWalletTransactionUseCase
@@ -156,4 +156,25 @@ class GooglePayViewModelTest : BaseKoinUnitTest() {
                 }
             }
         }
+
+    @Test
+    fun `resetResultState should reset UI state`() = runTest {
+        val walletToken = MobileSDKTestConstants.Wallet.MOCK_WALLET_TOKEN
+        viewModel.stateFlow.test {
+            // ACTION
+            viewModel.setWalletToken(walletToken)
+            viewModel.resetResultState()
+            // Initial state
+            assertNull(awaitItem().token)
+            assertEquals(walletToken, awaitItem().token)
+            // Result state - success
+            awaitItem().let { state ->
+                assertFalse(state.isLoading)
+                assertNull(state.token)
+                assertFalse(state.googlePayAvailable)
+                assertNull(state.chargeData)
+                assertNull(state.error)
+            }
+        }
+    }
 }

@@ -3,11 +3,11 @@ package com.paydock.feature.card.presentation.viewmodels
 import app.cash.turbine.test
 import com.paydock.core.BaseKoinUnitTest
 import com.paydock.core.MobileSDKTestConstants
-import com.paydock.core.data.network.error.ApiErrorResponse
-import com.paydock.core.data.network.error.ErrorSummary
 import com.paydock.core.data.util.DispatchersProvider
-import com.paydock.core.domain.error.exceptions.ApiException
 import com.paydock.core.domain.error.exceptions.CardDetailsException
+import com.paydock.core.network.dto.error.ApiErrorResponse
+import com.paydock.core.network.dto.error.ErrorSummary
+import com.paydock.core.network.exceptions.ApiException
 import com.paydock.core.utils.MainDispatcherRule
 import com.paydock.feature.card.domain.model.TokenisedCardDetails
 import com.paydock.feature.card.domain.usecase.TokeniseCreditCardUseCase
@@ -46,7 +46,11 @@ class CardDetailsViewModelTest : BaseKoinUnitTest() {
     @Before
     fun setup() {
         useCase = mockk()
-        viewModel = CardDetailsViewModel(useCase, dispatchersProvider)
+        viewModel = CardDetailsViewModel(
+            MobileSDKTestConstants.General.MOCK_ACCESS_TOKEN,
+            useCase,
+            dispatchersProvider
+        )
     }
 
     @Test
@@ -140,7 +144,12 @@ class CardDetailsViewModelTest : BaseKoinUnitTest() {
         runTest {
             val mockToken = MobileSDKTestConstants.Card.MOCK_CARD_TOKEN
             val mockResult = Result.success(TokenisedCardDetails(token = mockToken, type = "token"))
-            coEvery { useCase(any()) } returns mockResult
+            coEvery {
+                useCase(
+                    MobileSDKTestConstants.General.MOCK_ACCESS_TOKEN,
+                    any()
+                )
+            } returns mockResult
             // Allows for testing flow state
             viewModel.stateFlow.test {
                 // ACTION
@@ -151,7 +160,7 @@ class CardDetailsViewModelTest : BaseKoinUnitTest() {
                 assertFalse(awaitItem().isLoading)
                 // Loading state - before execution
                 assertTrue(awaitItem().isLoading)
-                coVerify { useCase(any()) }
+                coVerify { useCase(MobileSDKTestConstants.General.MOCK_ACCESS_TOKEN, any()) }
                 // Resul state - success
                 awaitItem().let { state ->
                     assertFalse(state.isLoading)
@@ -174,7 +183,12 @@ class CardDetailsViewModelTest : BaseKoinUnitTest() {
                 )
             )
             val mockResult = Result.failure<TokenisedCardDetails>(mockError)
-            coEvery { useCase(any()) } returns mockResult
+            coEvery {
+                useCase(
+                    MobileSDKTestConstants.General.MOCK_ACCESS_TOKEN,
+                    any()
+                )
+            } returns mockResult
             viewModel.setGatewayId(MobileSDKTestConstants.General.MOCK_GATEWAY_ID)
             // Allows for testing flow state
             viewModel.stateFlow.test {
@@ -186,7 +200,7 @@ class CardDetailsViewModelTest : BaseKoinUnitTest() {
                 assertFalse(awaitItem().isLoading)
                 // Loading state - before execution
                 assertTrue(awaitItem().isLoading)
-                coVerify { useCase(any()) }
+                coVerify { useCase(MobileSDKTestConstants.General.MOCK_ACCESS_TOKEN, any()) }
                 // Resul state - failure
                 awaitItem().let { state ->
                     assertFalse(state.isLoading)
@@ -200,4 +214,37 @@ class CardDetailsViewModelTest : BaseKoinUnitTest() {
                 }
             }
         }
+
+    @Test
+    fun `resetResultState should reset UI state`() = runTest {
+        val gatewayId = MobileSDKTestConstants.General.MOCK_GATEWAY_ID
+        viewModel.stateFlow.test {
+            // ACTION
+            viewModel.setGatewayId(gatewayId)
+            viewModel.updateCardholderName("John Doe")
+            viewModel.updateCardNumber("4111111111111111")
+            viewModel.updateExpiry("0536")
+            viewModel.updateSecurityCode("123")
+            // Initial state
+            awaitItem()
+            // Updated state
+            assertNull(awaitItem().token)
+            assertTrue(awaitItem().cardholderName.isNotBlank())
+            assertTrue(awaitItem().cardNumber.isNotBlank())
+            assertTrue(awaitItem().expiry.isNotBlank())
+            assertTrue(awaitItem().code.isNotBlank())
+            // Result state - success
+            viewModel.resetResultState()
+            awaitItem().let { state ->
+                assertEquals(gatewayId, state.gatewayId)
+                assertFalse(state.isLoading)
+                assertNull(state.token)
+                assertTrue(state.cardholderName.isBlank())
+                assertTrue(state.cardNumber.isBlank())
+                assertTrue(state.expiry.isBlank())
+                assertTrue(state.code.isBlank())
+                assertNull(state.error)
+            }
+        }
+    }
 }

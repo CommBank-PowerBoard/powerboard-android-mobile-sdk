@@ -35,7 +35,7 @@ fun ThreeDSWidget(
     // Obtain instances of view models
     val viewModel: ThreeDSViewModel = koinViewModel()
 
-    // Collect states for Mastercard SRC view models
+    // Collect states for Click to Pay view models
     val uiState by viewModel.stateFlow.collectAsState()
 
     val scope = rememberCoroutineScope()
@@ -92,7 +92,7 @@ fun ThreeDSWidget(
             )
         )
         SdkWebView(
-            webUrl = "https://www.commbank.com.au/",
+            webUrl = "https://paydock.com",
             data = htmlString,
             jsBridge = ThreeDSJSBridge {
                 viewModel.updateThreeDSEvent(it)

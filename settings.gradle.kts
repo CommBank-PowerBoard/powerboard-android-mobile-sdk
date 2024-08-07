@@ -1,8 +1,10 @@
 rootProject.name = "CBA SampleApp"
-
 includeBuild("convention-plugins")
 
-include(":sample")
+// Only include sample app if not on JitPack
+if (!System.getenv().containsKey("JITPACK")) {
+    include(":sample")
+}
 include(":mobile-sdk")
 
 pluginManagement {
@@ -17,5 +19,7 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
+        // Used for core submodules
+        maven { setUrl("https://www.jitpack.io") }
     }
 }

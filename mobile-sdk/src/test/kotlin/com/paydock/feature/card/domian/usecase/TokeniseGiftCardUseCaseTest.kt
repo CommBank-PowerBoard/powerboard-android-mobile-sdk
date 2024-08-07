@@ -2,10 +2,10 @@ package com.paydock.feature.card.domian.usecase
 
 import com.paydock.core.BaseKoinUnitTest
 import com.paydock.core.MobileSDKTestConstants
-import com.paydock.core.data.network.error.ApiErrorResponse
-import com.paydock.core.data.network.error.ErrorSummary
-import com.paydock.core.domain.error.exceptions.ApiException
-import com.paydock.core.extensions.convertToDataClass
+import com.paydock.core.network.dto.error.ApiErrorResponse
+import com.paydock.core.network.dto.error.ErrorSummary
+import com.paydock.core.network.exceptions.ApiException
+import com.paydock.core.network.extensions.convertToDataClass
 import com.paydock.feature.card.data.api.dto.TokeniseCardRequest
 import com.paydock.feature.card.domain.model.TokenisedCardDetails
 import com.paydock.feature.card.domain.repository.CardDetailsRepository
@@ -41,13 +41,15 @@ class TokeniseGiftCardUseCaseTest : BaseKoinUnitTest() {
                 type = "token",
                 token = MobileSDKTestConstants.Card.MOCK_CARD_TOKEN
             )
-        coEvery { mockRepository.tokeniseCardDetails(request) } returns expectedResult
+        coEvery {
+            mockRepository.tokeniseCardDetails(MobileSDKTestConstants.General.MOCK_ACCESS_TOKEN, request)
+        } returns expectedResult
         // WHEN
-        val actualResult = tokeniseCreditCardUseCase(request)
+        val actualResult = tokeniseCreditCardUseCase(MobileSDKTestConstants.General.MOCK_ACCESS_TOKEN, request)
         // THEN
         assertTrue(actualResult.isSuccess)
         assertEquals(expectedResult, actualResult.getOrNull())
-        coVerify(exactly = 1) { mockRepository.tokeniseCardDetails(request) }
+        coVerify(exactly = 1) { mockRepository.tokeniseCardDetails(MobileSDKTestConstants.General.MOCK_ACCESS_TOKEN, request) }
     }
 
     @Test
@@ -65,13 +67,15 @@ class TokeniseGiftCardUseCaseTest : BaseKoinUnitTest() {
                     )
                 )
             )
-        coEvery { mockRepository.tokeniseCardDetails(request) } throws expectedResult
+        coEvery {
+            mockRepository.tokeniseCardDetails(MobileSDKTestConstants.General.MOCK_ACCESS_TOKEN, request)
+        } throws expectedResult
         // WHEN
-        val actualResult = tokeniseCreditCardUseCase(request)
+        val actualResult = tokeniseCreditCardUseCase(MobileSDKTestConstants.General.MOCK_ACCESS_TOKEN, request)
         // THEN
         assertTrue(actualResult.isFailure)
         assertEquals(expectedResult, actualResult.exceptionOrNull())
-        coVerify(exactly = 1) { mockRepository.tokeniseCardDetails(request) }
+        coVerify(exactly = 1) { mockRepository.tokeniseCardDetails(MobileSDKTestConstants.General.MOCK_ACCESS_TOKEN, request) }
     }
 
 }

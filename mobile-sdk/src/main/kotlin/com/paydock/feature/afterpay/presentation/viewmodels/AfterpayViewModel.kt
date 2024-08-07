@@ -9,9 +9,9 @@ import com.paydock.MobileSDK
 import com.paydock.core.MobileSDKConstants
 import com.paydock.core.data.util.DispatchersProvider
 import com.paydock.core.domain.error.exceptions.AfterpayException
-import com.paydock.core.domain.error.exceptions.ApiException
-import com.paydock.core.domain.error.exceptions.UnknownApiException
 import com.paydock.core.domain.model.Environment
+import com.paydock.core.network.exceptions.ApiException
+import com.paydock.core.network.exceptions.UnknownApiException
 import com.paydock.feature.afterpay.presentation.mapper.mapMessage
 import com.paydock.feature.afterpay.presentation.mapper.mapToSDKShippingOptionResult
 import com.paydock.feature.afterpay.presentation.mapper.mapToSDKShippingOptionUpdateResult

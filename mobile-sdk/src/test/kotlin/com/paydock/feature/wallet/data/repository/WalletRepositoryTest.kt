@@ -4,7 +4,7 @@ import com.paydock.core.BaseKoinUnitTest
 import com.paydock.core.MobileSDKTestConstants
 import com.paydock.core.data.injection.modules.mockFailureNetworkModule
 import com.paydock.core.data.injection.modules.mockSuccessNetworkModule
-import com.paydock.core.extensions.convertToDataClass
+import com.paydock.core.network.extensions.convertToDataClass
 import com.paydock.feature.wallet.data.api.dto.WalletCallbackRequest
 import com.paydock.feature.wallet.data.api.dto.WalletCallbackResponse
 import com.paydock.feature.wallet.data.api.dto.WalletCaptureRequest

@@ -4,8 +4,8 @@ package com.paydock.core
 internal object MobileSDKTestConstants {
 
     object General {
-        const val MOCK_PUBLIC_KEY = "public_key"
         const val MOCK_GATEWAY_ID = "gateway_id"
+        const val MOCK_ACCESS_TOKEN = "mock_access_token"
     }
 
     object Wallet {
@@ -60,6 +60,10 @@ internal object MobileSDKTestConstants {
     object Afterpay {
         const val MOCK_CHECKOUT_TOKEN = "001.6i9ukio2hmngq2ddkrf0h5cdhr0ntjqoqc6h6lrc92gvdpn3"
         const val MOCK_INVALID_CHECKOUT_TOKEN = "invalid-checkout-token"
+    }
+
+    object ClickToPay {
+        const val MOCK_CHECKOUT_TOKEN = "6627a531c6eca636271113f7"
     }
 
     object Jwt {

@@ -4,5 +4,8 @@ import com.cba.sample.feature.threeDS.data.api.dto.CreateIntegratedThreeDSTokenR
 import com.cba.sample.feature.threeDS.domain.model.ThreeDSToken
 
 interface ThreeDSRepository {
-    suspend fun createIntegrated3dsToken(request: CreateIntegratedThreeDSTokenRequest): ThreeDSToken
+    suspend fun createIntegrated3dsToken(
+        accessToken: String,
+        request: CreateIntegratedThreeDSTokenRequest
+    ): ThreeDSToken
 }

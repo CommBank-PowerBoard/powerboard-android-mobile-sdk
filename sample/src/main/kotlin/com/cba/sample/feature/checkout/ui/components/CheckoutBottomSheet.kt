@@ -13,6 +13,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.SheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -23,9 +24,10 @@ import androidx.compose.ui.unit.dp
 import com.cba.sample.designsystems.components.button.AppButton
 import com.cba.sample.designsystems.theme.Theme
 import com.cba.sample.feature.checkout.CheckoutUIState
-import com.cba.sample.feature.checkout.CheckoutViewModel
+import com.cba.sample.feature.checkout.StandaloneCheckoutViewModel
 import com.cba.sample.feature.widgets.ui.models.WidgetType
 import com.paydock.designsystems.components.sheet.SdkBottomSheet
+import com.paydock.feature.wallet.domain.model.WalletType
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -33,17 +35,18 @@ fun CheckoutBottomSheet(
     bottomSheetState: SheetState,
     onDismissRequest: () -> Unit,
     uiState: CheckoutUIState,
-    viewModel: CheckoutViewModel
+    viewModel: StandaloneCheckoutViewModel,
 ) {
     val scrollState = rememberScrollState()
     val supportedPaymentMethods =
         listOf(
             WidgetType.CREDIT_CARD_DETAILS,
-            WidgetType.MASTERCARD_SRC,
+            WidgetType.CLICK_TO_PAY,
             WidgetType.GOOGLE_PAY,
             WidgetType.PAY_PAL,
             WidgetType.AFTER_PAY
         )
+    val accessToken by viewModel.accessToken.collectAsState()
     var selectedTab by remember { mutableStateOf(supportedPaymentMethods.first()) }
     SdkBottomSheet(
         containerColor = Theme.colors.surface,
@@ -81,10 +84,10 @@ fun CheckoutBottomSheet(
                                 modifier = Modifier.fillMaxWidth(),
                                 verticalArrangement = Arrangement.spacedBy(16.dp)
                             ) {
-                                CardContent(viewModel)
+                                CardContent(accessToken, viewModel::handleCardResult)
                                 AppButton(
                                     modifier = Modifier.fillMaxWidth(),
-                                    text = "Pay A$10.00",
+                                    text = "Pay £10.00",
                                     enabled = !uiState.cardToken.isNullOrBlank() && !uiState.isLoading
                                 ) {
                                     val token = uiState.cardToken
@@ -93,14 +96,28 @@ fun CheckoutBottomSheet(
                             }
                         }
 
-                        WidgetType.MASTERCARD_SRC -> MastercardSRCComponent(
-                            uiState.isLoading,
-                            viewModel
+                        WidgetType.CLICK_TO_PAY -> ClickToPayComponent(
+                            isLoading = uiState.isLoading,
+                            accessToken = accessToken,
+                            resultHandler = viewModel::handleClickToPayResult
                         )
 
-                        WidgetType.GOOGLE_PAY -> GooglePayContent(viewModel)
-                        WidgetType.PAY_PAL -> PayPalContent(viewModel)
-                        WidgetType.AFTER_PAY -> AfterpayContent(viewModel)
+                        WidgetType.GOOGLE_PAY -> GooglePayContent(
+                            viewModel.getWalletToken(
+                                WalletType.GOOGLE
+                            ), viewModel::handleChargeResult
+                        )
+
+                        WidgetType.PAY_PAL -> PayPalContent(
+                            viewModel.getWalletToken(WalletType.PAY_PAL),
+                            viewModel::handleChargeResult
+                        )
+
+                        WidgetType.AFTER_PAY -> AfterpayContent(
+                            viewModel.getWalletToken(WalletType.AFTER_PAY),
+                            viewModel::handleChargeResult
+                        )
+
                         else -> Unit
                     }
                 }

@@ -30,15 +30,6 @@ internal object MobileSDKConstants {
     }
 
     /**
-     * Network configuration constants.
-     */
-    object NetworkConfig {
-        internal const val CONNECTION_TIMEOUT = 45L
-        internal const val READ_TIMEOUT = 60L
-        internal const val WRITE_TIMEOUT = 60L
-    }
-
-    /**
      * Constants related to card details.
      */
     object CardDetailsConfig {
@@ -94,10 +85,7 @@ internal object MobileSDKConstants {
      * Constants related to PayPal configuration.
      */
     object PayPalConfig {
-        internal const val PAY_PAL_REDIRECT_URL =
-            "https://powerboard.commbank.com.au/paypal/success"
-        internal const val PAY_PAL_REDIRECT_PARAM_VALUE =
-            "https://powerboard.commbank.com.au/paypal/success&native_xo=1"
+        internal const val PAY_PAL_REDIRECT_PARAM_VALUE = "https://paydock-mobile.sdk/paypal/success&native_xo=1"
         internal const val REDIRECT_PARAM_NAME = "redirect_uri"
     }
 
@@ -137,10 +125,14 @@ internal object MobileSDKConstants {
             "The 3DS authentication has been rejected. Please try again later or contact support for assistance."
         const val PAY_PAL_ERROR =
             "An unexpected error occurred while processing PayPal. Please try again later or contact support for assistance."
+        const val FLY_PAY_ERROR =
+            "An unexpected error occurred while processing FlyPay. Please try again later or contact support for assistance."
         const val AFTER_PAY_ERROR =
             "An unexpected error occurred while processing Afterpay. Please try again later or contact support for assistance."
-        const val MASTERCARD_SRC_ERROR =
-            "An unexpected error occurred while processing Mastercard SRC. Please try again later or contact support for assistance."
+        const val CLICK_TO_PAY_ERROR =
+            "An unexpected error occurred while processing ClickToPay. Please try again later or contact support for assistance."
+        const val UNKNOWN_WEB_ERROR =
+            "An unexpected error occurred in the web view. Please try again later or contact support for assistance."
         const val DEFAULT_ERROR = "An unknown error occurred. Please try again later."
     }
 }

@@ -7,13 +7,13 @@ import com.paydock.MobileSDK
 import com.paydock.core.BaseUnitTest
 import com.paydock.core.MobileSDKConstants
 import com.paydock.core.MobileSDKTestConstants
-import com.paydock.core.data.network.error.ApiErrorResponse
-import com.paydock.core.data.network.error.ErrorSummary
 import com.paydock.core.data.util.DispatchersProvider
 import com.paydock.core.domain.error.exceptions.AfterpayException
-import com.paydock.core.domain.error.exceptions.ApiException
 import com.paydock.core.domain.model.Environment
-import com.paydock.core.extensions.convertToDataClass
+import com.paydock.core.network.dto.error.ApiErrorResponse
+import com.paydock.core.network.dto.error.ErrorSummary
+import com.paydock.core.network.exceptions.ApiException
+import com.paydock.core.network.extensions.convertToDataClass
 import com.paydock.core.utils.MainDispatcherRule
 import com.paydock.feature.afterpay.presentation.model.AfterpaySDKConfig
 import com.paydock.feature.afterpay.presentation.model.AfterpayShippingOption
@@ -77,7 +77,6 @@ class AfterpayViewModelTest : BaseUnitTest() {
         every { context.applicationContext } returns context
         // We need to initialise the SDK to start Koin
         context.initializeMobileSDK(
-            MobileSDKTestConstants.General.MOCK_PUBLIC_KEY,
             Environment.PRE_PRODUCTION
         )
 
@@ -401,7 +400,7 @@ class AfterpayViewModelTest : BaseUnitTest() {
     fun `capture Afterpay wallet charge should update isLoading, call useCase, and update state on success`() =
         runTest {
             val walletToken = MobileSDKTestConstants.Wallet.MOCK_WALLET_TOKEN
-            val afterpayToken = MobileSDKTestConstants.Afterpay.MOCK_CHECKOUT_TOKEN
+            val afterPayToken = MobileSDKTestConstants.Afterpay.MOCK_CHECKOUT_TOKEN
             val response =
                 readResourceFile("wallet/success_capture_wallet_response.json").convertToDataClass<WalletCaptureResponse>()
             val mockResult = Result.success(response.asEntity())
@@ -409,7 +408,7 @@ class AfterpayViewModelTest : BaseUnitTest() {
             // Allows for testing flow state
             viewModel.stateFlow.test {
                 // ACTION
-                viewModel.captureWalletTransaction(walletToken, afterpayToken)
+                viewModel.captureWalletTransaction(walletToken, afterPayToken)
                 // CHECK
                 // 4.
                 // Initial state
@@ -430,7 +429,7 @@ class AfterpayViewModelTest : BaseUnitTest() {
     fun `capture Afterpay wallet charge should update isLoading, call useCase, and update state on failure`() =
         runTest {
             val invalidWalletToken = MobileSDKTestConstants.Wallet.MOCK_INVALID_WALLET_TOKEN
-            val afterpayToken = MobileSDKTestConstants.Afterpay.MOCK_CHECKOUT_TOKEN
+            val afterPayToken = MobileSDKTestConstants.Afterpay.MOCK_CHECKOUT_TOKEN
             val mockError = ApiException(
                 error = ApiErrorResponse(
                     status = HttpStatusCode.InternalServerError.value,
@@ -445,7 +444,7 @@ class AfterpayViewModelTest : BaseUnitTest() {
             // Allows for testing flow state
             viewModel.stateFlow.test {
                 // ACTION
-                viewModel.captureWalletTransaction(invalidWalletToken, afterpayToken)
+                viewModel.captureWalletTransaction(invalidWalletToken, afterPayToken)
                 // CHECK
                 // 4.
                 // Initial state

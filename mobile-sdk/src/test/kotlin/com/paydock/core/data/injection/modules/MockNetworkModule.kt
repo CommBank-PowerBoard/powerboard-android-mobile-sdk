@@ -1,51 +1,46 @@
 package com.paydock.core.data.injection.modules
 
+import com.paydock.MobileSDK
 import com.paydock.core.MobileSDKTestConstants
-import com.paydock.core.data.network.error.ApiErrorInterceptor
-import com.paydock.core.extensions.convertToDataClass
+import com.paydock.core.domain.mapper.mapToBaseUrl
+import com.paydock.core.domain.mapper.mapToSSLPin
+import com.paydock.core.network.NetworkClientBuilder
+import com.paydock.core.network.addInterceptor
+import com.paydock.core.network.extensions.convertToDataClass
+import com.paydock.core.network.interceptor.AuthInterceptor
 import com.paydock.core.utils.MockResponseFileReader
-import com.paydock.feature.card.data.api.auth.CardAuthInterceptor
 import com.paydock.feature.wallet.data.api.dto.WalletCallbackRequest
 import com.paydock.feature.wallet.domain.model.WalletType
-import io.ktor.client.HttpClient
-import io.ktor.client.engine.HttpClientEngine
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.MockRequestHandleScope
 import io.ktor.client.engine.mock.respond
 import io.ktor.client.engine.mock.respondError
-import io.ktor.client.engine.okhttp.OkHttp
-import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
-import io.ktor.client.plugins.defaultRequest
-import io.ktor.client.plugins.observer.ResponseObserver
 import io.ktor.client.request.HttpRequestData
 import io.ktor.client.request.HttpResponseData
-import io.ktor.client.request.headers
-import io.ktor.client.statement.bodyAsText
-import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
+import io.ktor.http.URLProtocol
 import io.ktor.http.content.OutgoingContent
-import io.ktor.http.contentType
 import io.ktor.http.headersOf
-import io.ktor.serialization.kotlinx.json.json
-import io.ktor.util.appendIfNameAbsent
 import io.ktor.utils.io.ByteReadChannel
-import kotlinx.serialization.json.Json
-import okhttp3.CertificatePinner
 import org.koin.dsl.module
 
 /**
  * This module defines a single `HttpClientEngine` and a single `HttpClient`.
  */
 val mockSuccessNetworkModule = module {
-
-    single {
-        provideSuccessHttpMockEngine()
+    single<MockEngine> {
+        MockEngine.create {
+            addHandler { request -> handleSuccessRequest(request) }
+        } as MockEngine
     }
 
     single {
         // Create a `HttpClient` that uses the mock HTTP engine.
-        provideHttpMockClient(get(), get())
+        NetworkClientBuilder.create()
+            .setBaseUrl("https://example.com")
+            .setMockEngine(get())
+            .build()
     }
 }
 
@@ -54,13 +49,18 @@ val mockSuccessNetworkModule = module {
  */
 val mockFailureNetworkModule = module {
 
-    single {
-        provideFailureHttpMockEngine()
+    single<MockEngine> {
+        MockEngine.create {
+            addHandler { request -> handleFailureRequest(request) }
+        } as MockEngine
     }
 
     single {
         // Create a `HttpClient` that uses the mock HTTP engine.
-        provideHttpMockClient(get(), get())
+        NetworkClientBuilder.create()
+            .setBaseUrl("https://example.com")
+            .setMockEngine(get())
+            .build()
     }
 }
 
@@ -68,20 +68,12 @@ val mockFailureNetworkModule = module {
  * This module defines a single `CertificatePinner` and a single `HttpClient`.
  */
 val sslFailNetworkTestModule = module {
-
     single {
-        // Create a `CertificatePinner` that is configured to fail if the certificate for the domain `commbank.com.au` is not pinned.
-        provideSSLFailCertificate()
-    }
-
-    single {
-        // Create a `HttpClientEngine` that uses the `CertificatePinner` to verify the certificate for the domain `commbank.com.au`.
-        provideSslHttpEngine(get())
-    }
-
-    single {
-        // Create a `HttpClient` that uses the `HttpClientEngine`.
-        provideHttpMockClient(get(), get())
+        // Create a `HttpClient` that uses the mock HTTP engine.
+        NetworkClientBuilder.create()
+            .setBaseUrl("example.com")
+            .setSslPins(listOf("sha256/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="))
+            .build()
     }
 }
 
@@ -91,18 +83,11 @@ val sslFailNetworkTestModule = module {
 val sslSuccessNetworkTestModule = module {
 
     single {
-        // Create a `CertificatePinner` that is configured to succeed if the certificate for the domain `commbank.com.au` is pinned.
-        provideSSLCertificate()
-    }
-
-    single {
-        // Create a `HttpClientEngine` that uses the `CertificatePinner` to verify the certificate for the domain `commbank.com.au`.
-        provideSslHttpEngine(get())
-    }
-
-    single {
-        // Create a `HttpClient` that uses the `HttpClientEngine`.
-        provideHttpMockClient(get(), get())
+        // Create a `HttpClient` that uses the mock HTTP engine.
+        NetworkClientBuilder.create()
+            .setBaseUrl(MobileSDK.getInstance().environment.mapToBaseUrl())
+            .setSslPins(MobileSDK.getInstance().environment.mapToSSLPin())
+            .build()
     }
 }
 
@@ -112,168 +97,26 @@ val sslSuccessNetworkTestModule = module {
 val mockAuthInterceptorOkHttpModule = module {
 
     single {
-        provideAuthInterceptorHttpOKHttpEngine()
-    }
-
-    single {
         // Create a `HttpClient` that uses the `HttpClientEngine`.
-        provideHttpMockClient(get(), get())
+        NetworkClientBuilder.create()
+            .setBaseUrl("paydock.com")
+            .setProtocol(URLProtocol.HTTP)
+            .addInterceptor(AuthInterceptor("sample_public_key"))
+            .build()
     }
 }
 
 /**
- * This module defines a single `OKHttp` Engine with AuthInterceptor and a single `HttpClient`.
+ * This module defines a single `OKHttp` Engine with default ApiErrorInterceptor and a single `HttpClient`.
  */
 val mockApiInterceptorOkHttpModule = module {
 
     single {
-        provideApiInterceptorHttpOKHttpEngine()
-    }
-
-    single {
-        // Create a `HttpClient` that uses the `HttpClientEngine`.
-        provideHttpMockClient(get(), get())
-    }
-}
-
-/**
- * This function returns a `CertificatePinner` that is configured to fail if the certificate for the domain `commbank.com.au` is not pinned.
- */
-fun provideSSLFailCertificate(): CertificatePinner {
-
-    // Create a `CertificatePinner` that is configured to fail if the certificate for the domain `commbank.com.au` is not pinned.
-    return CertificatePinner.Builder()
-        .add("commbank.com.au", "sha256/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=")
-        .build()
-}
-
-/**
- * This function returns a `HttpClientEngine` that is configured to use the `CertificatePinner` to verify the
- * certificate for the domain `commbank.com.au`.
- */
-fun provideSslHttpEngine(
-    certificatePinner: CertificatePinner
-): HttpClientEngine {
-
-    // Create a `HttpClientEngine` that uses the `CertificatePinner` to verify the certificate for the domain `commbank.com.au`.
-    return OkHttp.create {
-        config {
-            // Certificate Pinning
-            certificatePinner(certificatePinner)
-            hostnameVerifier { hostname, _ -> hostname == "powerboard.commbank.com.au" }
-        }
-
-        ResponseObserver(responseHandler = { response ->
-            // Print the response body for debugging purposes
-            println(response.bodyAsText())
-        })
-    }
-}
-
-/**
- * This function returns a `HttpClientEngine` that is created using the `MockEngine.create()` function.
- */
-fun provideSuccessHttpMockEngine(): HttpClientEngine {
-    // Create a mock HTTP engine.
-    return MockEngine.create {
-        // Add a handler that will handle all requests.
-        addHandler { request ->
-            handleRequest(request)
-        }
-
-        ResponseObserver(responseHandler = { response ->
-            // Print the response body for debugging purposes
-            println(response.bodyAsText())
-        })
-    }
-}
-
-fun provideFailureHttpMockEngine(): HttpClientEngine {
-    // Create a mock HTTP engine.
-    return MockEngine.create {
-        // Add a handler that will handle all requests.
-        addHandler { request ->
-            handleFailureRequest(request)
-        }
-
-        ResponseObserver(responseHandler = { response ->
-            // Print the response body for debugging purposes
-            println(response.bodyAsText())
-        })
-    }
-}
-
-/**
- * Provides an instance of the OkHttp engine for the HttpClient.
- *
- * @return An instance of the OkHttp engine with the AuthInterceptor added.
- */
-fun provideAuthInterceptorHttpOKHttpEngine(): HttpClientEngine {
-    // Sample public key
-    val publicKey = "sample_public_key"
-    // Create a mock HTTP engine using OkHttp.
-    return OkHttp.create {
-        // Set the OkHttp client with the AuthInterceptor
-        val okHttpClient = okhttp3.OkHttpClient.Builder()
-            .addInterceptor(CardAuthInterceptor(publicKey)) // Add the AuthInterceptor with the public key
+        // Create a `HttpClient` that uses the mock HTTP engine.
+        NetworkClientBuilder.create()
+            .setProtocol(URLProtocol.HTTP)
+            .setBaseUrl("www.commbank.com.au")
             .build()
-
-        ResponseObserver(responseHandler = { response ->
-            // Print the response body for debugging purposes
-            println(response.bodyAsText())
-        })
-
-        preconfigured =
-            okHttpClient // Assign the OkHttp client to the preconfigured property of the OkHttp engine
-    }
-}
-
-/**
- * Provides an instance of the OkHttp engine for the HttpClient.
- *
- * @return An instance of the OkHttp engine with the ApiErrorInterceptor added.
- */
-fun provideApiInterceptorHttpOKHttpEngine(): HttpClientEngine {
-    // Create a mock HTTP engine using OkHttp.
-    return OkHttp.create {
-        // Set the OkHttp client with the ApiErrorInterceptor
-        val okHttpClient = okhttp3.OkHttpClient.Builder()
-            .addInterceptor(ApiErrorInterceptor())
-            .build()
-
-        ResponseObserver(responseHandler = { response ->
-            // Print the response body for debugging purposes
-            println(response.bodyAsText())
-        })
-
-        preconfigured =
-            okHttpClient // Assign the OkHttp client to the preconfigured property of the OkHttp engine
-    }
-}
-
-/**
- * This function returns a `HttpClient` that is created using the `HttpClient(engine)` function.
- */
-fun provideHttpMockClient(
-    json: Json,
-    engine: HttpClientEngine
-): HttpClient {
-
-    // Create a `HttpClient` that uses the mock HTTP engine.
-    return HttpClient(engine) {
-        expectSuccess = true
-        defaultRequest {
-            headers {
-                appendIfNameAbsent(
-                    HttpHeaders.ContentType,
-                    ContentType.Application.Json.contentType
-                )
-            }
-            contentType(ContentType.Application.Json)
-        }
-        install(ContentNegotiation) {
-            json(json)
-        }
     }
 }
 
@@ -281,7 +124,7 @@ fun provideHttpMockClient(
  * This function is used to handle requests that are made to the mock HTTP engine
  **/
 @Suppress("LongMethod")
-private fun MockRequestHandleScope.handleRequest(request: HttpRequestData): HttpResponseData {
+private fun MockRequestHandleScope.handleSuccessRequest(request: HttpRequestData): HttpResponseData {
     return when {
         // Check for matching endpoint path
         request.url.encodedPath.endsWith("/payment_sources/tokens") -> {

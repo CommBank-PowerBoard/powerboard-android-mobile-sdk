@@ -3,6 +3,7 @@ package com.cba.sample.feature.threeDS
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.cba.sample.core.THREE_DS_CARD_ERROR
+import com.cba.sample.core.presentation.utils.AccessTokenProvider
 import com.cba.sample.feature.threeDS.data.api.dto.CreateIntegratedThreeDSTokenRequest
 import com.cba.sample.feature.threeDS.domain.usecase.CreateIntegratedThreeDSTokenUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -14,6 +15,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ThreeDSViewModel @Inject constructor(
+    private val accessTokenProvider: AccessTokenProvider,
     private val createIntegratedThreeDSTokenUseCase: CreateIntegratedThreeDSTokenUseCase
 ) :
     ViewModel() {
@@ -24,11 +26,15 @@ class ThreeDSViewModel @Inject constructor(
 
     fun createIntegrated3dsToken(cardToken: String) {
         viewModelScope.launch {
+            val accessToken = accessTokenProvider.accessToken.value
             _stateFlow.update { state ->
                 state.copy(isLoading = true)
             }
             val result =
-                createIntegratedThreeDSTokenUseCase(CreateIntegratedThreeDSTokenRequest(token = cardToken))
+                createIntegratedThreeDSTokenUseCase(
+                    accessToken,
+                    CreateIntegratedThreeDSTokenRequest(token = cardToken)
+                )
             result.onSuccess { threeDSResult ->
                 _stateFlow.update { state ->
                     state.copy(token = threeDSResult.token, isLoading = false, error = null)

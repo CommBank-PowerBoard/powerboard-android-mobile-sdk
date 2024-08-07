@@ -32,9 +32,9 @@ val ErrorModel?.displayableMessage: String
                 exception.message
                     ?: MobileSDKConstants.Errors.PAY_PAL_ERROR
 
-            is ErrorModel.MastercardSRCError ->
+            is ErrorModel.ClickToPayError ->
                 exception.message
-                    ?: MobileSDKConstants.Errors.MASTERCARD_SRC_ERROR
+                    ?: MobileSDKConstants.Errors.CLICK_TO_PAY_ERROR
 
             is ErrorModel.GooglePayError ->
                 exception.message

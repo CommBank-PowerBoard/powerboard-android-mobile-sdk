@@ -4,19 +4,23 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.cba.sample.core.AU_COUNTRY_CODE
 import com.cba.sample.core.AU_CURRENCY_CODE
-import com.cba.sample.feature.checkout.CheckoutViewModel
+import com.cba.sample.designsystems.theme.SampleTheme
 import com.paydock.feature.afterpay.presentation.AfterpayWidget
 import com.paydock.feature.afterpay.presentation.model.AfterpaySDKConfig
 import com.paydock.feature.afterpay.presentation.model.AfterpayShippingOption
 import com.paydock.feature.afterpay.presentation.model.AfterpayShippingOptionUpdate
-import com.paydock.feature.wallet.domain.model.WalletType
+import com.paydock.feature.charge.domain.model.ChargeResponse
 import java.util.Currency
 
 @Composable
-fun AfterpayContent(viewModel: CheckoutViewModel) {
+fun AfterpayContent(
+    tokenHandler: (onTokenReceived: (String) -> Unit) -> Unit,
+    resultHandler: (Result<ChargeResponse>) -> Unit
+) {
     val configuration = AfterpaySDKConfig(
         config = AfterpaySDKConfig.AfterpayConfiguration(
             maximumAmount = "100",
@@ -33,7 +37,7 @@ fun AfterpayContent(viewModel: CheckoutViewModel) {
         modifier = Modifier
             .fillMaxWidth()
             .padding(16.dp),
-        token = viewModel.getWalletToken(WalletType.AFTER_PAY),
+        token = tokenHandler,
         config = configuration,
         selectAddress = { _, provideShippingOptions ->
             val currency = Currency.getInstance(configuration.config.currency)
@@ -77,6 +81,14 @@ fun AfterpayContent(viewModel: CheckoutViewModel) {
                 }
             provideShippingOptionUpdateResult(result)
         },
-        completion = viewModel::handleChargeResult
+        completion = resultHandler
     )
+}
+
+@Composable
+@Preview
+private fun AfterpayContentDefault() {
+    SampleTheme {
+        AfterpayContent({}, {})
+    }
 }

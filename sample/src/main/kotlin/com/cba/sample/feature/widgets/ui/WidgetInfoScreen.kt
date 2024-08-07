@@ -27,14 +27,15 @@ import com.cba.sample.core.MERCHANT_NAME
 import com.cba.sample.core.THREE_DS_CARD_ERROR
 import com.cba.sample.core.TOKENISE_CARD_ERROR
 import com.cba.sample.feature.card.CardViewModel
+import com.cba.sample.feature.settings.SettingsViewModel
 import com.cba.sample.feature.threeDS.ThreeDSViewModel
 import com.cba.sample.feature.wallet.WalletViewModel
 import com.cba.sample.feature.widgets.ui.models.WidgetType
-import com.paydock.core.data.network.error.displayableMessage
 import com.paydock.core.domain.error.displayableMessage
 import com.paydock.core.domain.error.exceptions.CardDetailsException
 import com.paydock.core.domain.error.toError
-import com.paydock.core.domain.model.meta.MastercardSRCMeta
+import com.paydock.core.domain.model.meta.ClickToPayMeta
+import com.paydock.core.network.dto.error.displayableMessage
 import com.paydock.core.presentation.ui.extensions.toast
 import com.paydock.feature.address.presentation.AddressDetailsWidget
 import com.paydock.feature.afterpay.presentation.AfterpayWidget
@@ -47,7 +48,7 @@ import com.paydock.feature.card.presentation.model.SaveCardConfig
 import com.paydock.feature.googlepay.presentation.GooglePayWidget
 import com.paydock.feature.googlepay.util.PaymentsUtil
 import com.paydock.feature.paypal.presentation.PayPalWidget
-import com.paydock.feature.src.presentation.MastercardSRCClickToPayWidget
+import com.paydock.feature.src.presentation.ClickToPayWidget
 import com.paydock.feature.threeDS.presentation.ThreeDSWidget
 import com.paydock.feature.wallet.domain.model.WalletType
 import org.json.JSONArray
@@ -58,16 +59,19 @@ import java.util.Currency
 @Composable
 fun WidgetInfoScreen(
     widgetType: WidgetType,
+    settingsViewModel: SettingsViewModel = hiltViewModel(),
     walletViewModel: WalletViewModel = hiltViewModel(),
     cardViewModel: CardViewModel = hiltViewModel(),
     threeDSViewModel: ThreeDSViewModel = hiltViewModel()
 ) {
     Box(modifier = Modifier.fillMaxSize()) {
+        val accessToken by settingsViewModel.accessToken.collectAsState()
         val context = LocalContext.current
         when (widgetType) {
             WidgetType.CREDIT_CARD_DETAILS -> {
                 CardDetailsWidget(
                     modifier = Modifier.padding(16.dp),
+                    accessToken = accessToken,
                     gatewayId = BuildConfig.GATEWAY_ID,
                     allowSaveCard = SaveCardConfig(
                         privacyPolicyConfig = SaveCardConfig.PrivacyPolicyConfig(
@@ -126,6 +130,7 @@ fun WidgetInfoScreen(
 
             WidgetType.GIFT_CARD_DETAILS -> {
                 GiftCardWidget(
+                    accessToken = accessToken,
                     storePin = true, completion = { result ->
                         result.onSuccess {
                             Log.d("[GiftCardWidget]", "Success: $it")
@@ -192,27 +197,28 @@ fun WidgetInfoScreen(
                 }
             }
 
-            WidgetType.MASTERCARD_SRC -> {
+            WidgetType.CLICK_TO_PAY -> {
                 // This is to ensure we hide the WebView once completed
                 var hasCompletedFlow: Boolean by remember { mutableStateOf(false) }
                 if (!hasCompletedFlow) {
                     // Test Cards: https://developer.mastercard.com/unified-checkout-solutions/documentation/testing/test_cases/click_to_pay_case/#test-cards
-                    MastercardSRCClickToPayWidget(
+                    ClickToPayWidget(
                         modifier = Modifier
                             .fillMaxWidth(),
+                        accessToken = accessToken,
                         serviceId = BuildConfig.GATEWAY_ID_MASTERCARD_SRC,
-                        meta = MastercardSRCMeta(
+                        meta = ClickToPayMeta(
                             disableSummaryScreen = true
                         )
                     ) { result ->
                         result.onSuccess {
-                            Log.d("[MastercardSRCClickToPayWidget]", it)
-                            context.toast("Mastercard SRC Result returned [$it]")
+                            Log.d("[ClickToPayWidget]", it)
+                            context.toast("ClickToPay Result returned [$it]")
                             hasCompletedFlow = true
                         }.onFailure {
                             val error = it.toError()
-                            Log.d("[MastercardSRCClickToPayWidget]", error.displayableMessage)
-                            context.toast("Mastercard SRC Result failed! [${error.displayableMessage}]")
+                            Log.d("[ClickToPayWidget]", error.displayableMessage)
+                            context.toast("ClickToPay Result failed! [${error.displayableMessage}]")
                             hasCompletedFlow = true
                         }
                     }
