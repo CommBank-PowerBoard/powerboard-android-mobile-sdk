@@ -3,7 +3,9 @@ package com.paydock.feature.address.presentation.components
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.autofill.AutofillType
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.text.input.ImeAction
 import com.paydock.designsystems.components.InputValidIcon
@@ -18,12 +20,14 @@ import com.paydock.designsystems.components.SdkTextField
  * @param nextFocus The [FocusRequester] of the next input field to move focus to.
  * @param onValueUpdated The callback function to be called when the value of the input field is updated.
  */
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun AddressInputField(
     modifier: Modifier = Modifier,
     value: String,
     label: String,
     nextFocus: FocusRequester? = null,
+    autofillType: AutofillType? = null,
     onValueUpdated: (String) -> Unit
 ) {
     SdkTextField(
@@ -41,6 +45,7 @@ fun AddressInputField(
         } else {
             null
         },
+        autofillType = autofillType,
         // Use keyboard options and actions for a more user-friendly input experience
         keyboardOptions = KeyboardOptions(
             imeAction = ImeAction.Next

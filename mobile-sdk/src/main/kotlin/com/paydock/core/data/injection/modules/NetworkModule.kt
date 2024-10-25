@@ -25,7 +25,11 @@ val networkModule = module {
     single {
         NetworkClientBuilder.create()
             .setBaseUrl(MobileSDK.getInstance().baseUrl)
-            .setSslPins(MobileSDK.getInstance().environment.mapToSSLPin())
+            .apply {
+                if (!MobileSDK.getInstance().enableTestMode) {
+                    setSslPins(MobileSDK.getInstance().environment.mapToSSLPin())
+                }
+            }
             .setDebug(BuildConfig.DEBUG)
             .build()
     }

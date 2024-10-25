@@ -16,11 +16,11 @@ internal object ClientSDKConstants {
      */
     object Library {
         internal const val PROD =
-            "https://widget.powerboard.commbank.com.au/sdk/v1.106.11/widget.umd.min.js"
+            "https://widget.powerboard.commbank.com.au/sdk/v1.108.3/widget.umd.min.js"
         internal const val PRE_PRODUCTION =
-            "https://widget.preproduction.powerboard.commbank.com.au/sdk/v1.106.11-beta/widget.umd.min.js"
+            "https://widget.preproduction.powerboard.commbank.com.au/sdk/v1.108.3-beta/widget.umd.min.js"
         internal const val STAGING =
-            "https://widget.staging.powerboard.commbank.com.au/sdk/v1.106.11-beta/widget.umd.min.js"
+            "https://widget.staging.powerboard.commbank.com.au/sdk/v1.108.3-beta/widget.umd.min.js"
     }
 
     /**

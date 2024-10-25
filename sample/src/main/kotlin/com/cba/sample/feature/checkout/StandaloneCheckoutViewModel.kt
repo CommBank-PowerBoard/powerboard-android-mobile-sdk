@@ -2,9 +2,6 @@ package com.cba.sample.feature.checkout
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.paydock.feature.card.presentation.model.CardResult
-import com.paydock.feature.charge.domain.model.ChargeResponse
-import com.paydock.feature.wallet.domain.model.WalletType
 import com.cba.sample.BuildConfig
 import com.cba.sample.core.AU_CURRENCY_CODE
 import com.cba.sample.core.CHARGE_TRANSACTION_ERROR
@@ -27,6 +24,10 @@ import com.cba.sample.feature.wallet.data.api.dto.PaymentSource
 import com.cba.sample.feature.wallet.domain.model.WalletCharge
 import com.cba.sample.feature.wallet.domain.usecase.CaptureWalletChargeUseCase
 import com.cba.sample.feature.wallet.domain.usecase.InitiateWalletTransactionUseCase
+import com.paydock.feature.card.presentation.model.CardResult
+import com.paydock.feature.charge.domain.model.ChargeResponse
+import com.paydock.feature.threeDS.domain.model.ThreeDSResult
+import com.paydock.feature.wallet.domain.model.WalletType
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -272,7 +273,7 @@ class StandaloneCheckoutViewModel @Inject constructor(
         }
     }
 
-    fun handleThreeDSResult(vaultToken: String, result: Result<String>) {
+    fun handleThreeDSResult(vaultToken: String, result: Result<ThreeDSResult>) {
         result.onSuccess {
             _stateFlow.update { state -> state.copy(threeDSToken = null) }
             captureCardCharge(vaultToken)

@@ -65,18 +65,6 @@ android {
             "MERCHANT_IDENTIFIER",
             getPropertyValue("MERCHANT_IDENTIFIER")
         )
-
-        buildConfigField(
-            "String",
-            "CUSTOMISATION_TEMPLATE_ID",
-            getPropertyValue("CUSTOMISATION_TEMPLATE_ID")
-        )
-
-        buildConfigField(
-            "String",
-            "CONFIGURATION_TEMPLATE_ID",
-            getPropertyValue("CONFIGURATION_TEMPLATE_ID")
-        )
     }
     buildTypes {
         getByName("debug") {

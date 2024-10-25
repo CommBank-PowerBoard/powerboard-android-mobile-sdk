@@ -5,8 +5,8 @@ agp = "8.5.0"
 androidx-test-junit = "1.1.5"
 androidx-test-espresso = "3.5.1"
 androidx-fragment = "1.6.2"
+androidx-activity-compose = "1.8.2"
 accompanist = "0.28.0"
-compose = "1.8.2"
 composeWebview = "0.33.6"
 core = "1.12.0"
 detekt = "1.23.0"
@@ -28,7 +28,7 @@ mockitoAndroid = "5.7.0"
 mockwebserver = "4.9.3"
 navigation = "2.7.7"
 okhttp = "4.10.0"
-paydockCoreNetworking = "1.0.1"
+paydockCoreNetworking = "1.1.0"
 retrofit = "2.7.2"
 turbine = "1.0.0"
 
@@ -48,13 +48,13 @@ androidx-lifecycle-ktx = { group = "androidx.lifecycle", name = "lifecycle-runti
 # Afterpay
 afterpay-android = { module = "com.afterpay:afterpay-android", version.ref = "afterpayAndroid" }
 #Compose
-compose-bom = { module = "androidx.compose:compose-bom", version = "2023.10.01" }
+compose-bom = { module = "androidx.compose:compose-bom", version = "2024.08.00" }
 compose-material3 = { module = "androidx.compose.material3:material3" }
 compose-material-icons-extended = { module = "androidx.compose.material:material-icons-extended" }
 compose-ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview" }
-androidx-foundation-android = { group = "androidx.compose.foundation", name = "foundation", version = "1.6.5" }
+androidx-foundation-android = { module = "androidx.compose.foundation:foundation" }
 #Compose - AndroidX & Other
-androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "compose" }
+androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "androidx-activity-compose" }
 compose-webview = { module = "io.github.kevinnzou:compose-webview", version.ref = "composeWebview" }
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerializationJson" }
 navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigation" }

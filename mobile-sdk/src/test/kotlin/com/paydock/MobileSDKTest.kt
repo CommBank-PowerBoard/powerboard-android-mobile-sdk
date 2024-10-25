@@ -82,7 +82,7 @@ class MobileSDKTest : BaseUnitTest() {
         val environment = Environment.PRE_PRODUCTION
         val theme = MobileSDKTheme()
 
-        MobileSDK.initialize(context, environment, theme)
+        MobileSDK.initialize(context, environment, false, theme)
 
         val sdk = MobileSDK.getInstance()
         assertNotNull(sdk)

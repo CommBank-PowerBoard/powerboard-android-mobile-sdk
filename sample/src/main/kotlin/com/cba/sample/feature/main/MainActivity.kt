@@ -6,7 +6,6 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.imePadding
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
@@ -26,7 +25,6 @@ import com.cba.sample.designsystems.components.navigation.BottomNavigation
 import com.cba.sample.designsystems.components.navigation.NavigationGraph
 import com.cba.sample.designsystems.components.navigation.getRouteTitle
 import com.cba.sample.designsystems.components.navigation.showBackButton
-import com.cba.sample.designsystems.components.navigation.showTitle
 import com.cba.sample.designsystems.theme.SampleTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -57,11 +55,12 @@ fun MainScreenView() {
             // You can map the title based on the route using:
             actionBarTitle = backStackEntry.getRouteTitle(context)
             showBackButton = backStackEntry.showBackButton()
-            showTitle = backStackEntry.showTitle()
+            showTitle = true
         }
     }
 
     Scaffold(
+        modifier = Modifier.imePadding(),
         topBar = {
             CenterAppTopBar(
                 title = actionBarTitle,
@@ -84,7 +83,6 @@ fun MainScreenView() {
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier
                     .fillMaxSize()
-                    .imePadding()
                     .padding(paddingValues = innerPadding)
             ) {
                 // all content should be here
