@@ -9,8 +9,8 @@ import com.paydock.core.network.addInterceptor
 import com.paydock.core.network.extensions.convertToDataClass
 import com.paydock.core.network.interceptor.AuthInterceptor
 import com.paydock.core.utils.MockResponseFileReader
-import com.paydock.feature.wallet.data.api.dto.WalletCallbackRequest
-import com.paydock.feature.wallet.domain.model.WalletType
+import com.paydock.feature.wallet.data.dto.WalletCallbackRequest
+import com.paydock.feature.wallet.domain.model.integration.WalletType
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.MockRequestHandleScope
 import io.ktor.client.engine.mock.respond
@@ -28,7 +28,7 @@ import org.koin.dsl.module
 /**
  * This module defines a single `HttpClientEngine` and a single `HttpClient`.
  */
-val mockSuccessNetworkModule = module {
+internal val mockSuccessNetworkModule = module {
     single<MockEngine> {
         MockEngine.create {
             addHandler { request -> handleSuccessRequest(request) }
@@ -47,7 +47,7 @@ val mockSuccessNetworkModule = module {
 /**
  * This module defines a single `HttpClientEngine` and a single `HttpClient`.
  */
-val mockFailureNetworkModule = module {
+internal val mockFailureNetworkModule = module {
 
     single<MockEngine> {
         MockEngine.create {
@@ -67,7 +67,7 @@ val mockFailureNetworkModule = module {
 /**
  * This module defines a single `CertificatePinner` and a single `HttpClient`.
  */
-val sslFailNetworkTestModule = module {
+internal val sslFailNetworkTestModule = module {
     single {
         // Create a `HttpClient` that uses the mock HTTP engine.
         NetworkClientBuilder.create()
@@ -80,7 +80,7 @@ val sslFailNetworkTestModule = module {
 /**
  * This module defines a single `CertificatePinner` and a single `HttpClient`.
  */
-val sslSuccessNetworkTestModule = module {
+internal val sslSuccessNetworkTestModule = module {
 
     single {
         // Create a `HttpClient` that uses the mock HTTP engine.
@@ -94,7 +94,7 @@ val sslSuccessNetworkTestModule = module {
 /**
  * This module defines a single `OKHttp` Engine with AuthInterceptor and a single `HttpClient`.
  */
-val mockAuthInterceptorOkHttpModule = module {
+internal val mockAuthInterceptorOkHttpModule = module {
 
     single {
         // Create a `HttpClient` that uses the `HttpClientEngine`.
@@ -109,13 +109,13 @@ val mockAuthInterceptorOkHttpModule = module {
 /**
  * This module defines a single `OKHttp` Engine with default ApiErrorInterceptor and a single `HttpClient`.
  */
-val mockApiInterceptorOkHttpModule = module {
+internal val mockApiInterceptorOkHttpModule = module {
 
     single {
         // Create a `HttpClient` that uses the mock HTTP engine.
         NetworkClientBuilder.create()
             .setProtocol(URLProtocol.HTTP)
-            .setBaseUrl("www.commbank.com.au")
+            .setBaseUrl("paydock.com")
             .build()
     }
 }
@@ -123,7 +123,7 @@ val mockApiInterceptorOkHttpModule = module {
 /**
  * This function is used to handle requests that are made to the mock HTTP engine
  **/
-@Suppress("LongMethod")
+@Suppress("LongMethod", "CyclomaticComplexMethod")
 private fun MockRequestHandleScope.handleSuccessRequest(request: HttpRequestData): HttpResponseData {
     return when {
         // Check for matching endpoint path
@@ -131,7 +131,25 @@ private fun MockRequestHandleScope.handleSuccessRequest(request: HttpRequestData
             // Check if the custom header indicating success is present
             respond(
                 content = MockResponseFileReader("card/success_card_token_response.json").content,
-                status = HttpStatusCode.OK,
+                status = HttpStatusCode.Created,
+                headers = headersOf(HttpHeaders.ContentType, "application/json")
+            )
+        }
+
+        request.url.encodedPath.endsWith("/payment_sources/setup-tokens/${MobileSDKTestConstants.PayPalVault.MOCK_SETUP_TOKEN}/tokens") -> {
+            // Check if the custom header indicating success is present
+            respond(
+                content = MockResponseFileReader("paypal/success_payment_token_response.json").content,
+                status = HttpStatusCode.Created,
+                headers = headersOf(HttpHeaders.ContentType, "application/json")
+            )
+        }
+
+        request.url.encodedPath.endsWith("/payment_sources/setup-tokens") -> {
+            // Check if the custom header indicating success is present
+            respond(
+                content = MockResponseFileReader("paypal/success_setup_token_response.json").content,
+                status = HttpStatusCode.Created,
                 headers = headersOf(HttpHeaders.ContentType, "application/json")
             )
         }
@@ -185,6 +203,22 @@ private fun MockRequestHandleScope.handleSuccessRequest(request: HttpRequestData
             )
         }
 
+        request.url.encodedPath.endsWith("/gateways/${MobileSDKTestConstants.General.MOCK_GATEWAY_ID}/wallet-config") -> {
+            respondError(
+                content = MockResponseFileReader("gateway/success_wallet_config_response.json").content,
+                status = HttpStatusCode.OK,
+                headers = headersOf(HttpHeaders.ContentType, "application/json")
+            )
+        }
+
+        request.url.encodedPath.endsWith("/bin-management/card_schemas") -> {
+            respondError(
+                content = MockResponseFileReader("card/success_get_card_schemas_response.json").content,
+                status = HttpStatusCode.OK,
+                headers = headersOf(HttpHeaders.ContentType, "application/json")
+            )
+        }
+
         request.url.encodedPath.endsWith("/") -> {
             // This is purely for example purposes
             respond(
@@ -209,6 +243,22 @@ private fun MockRequestHandleScope.handleFailureRequest(request: HttpRequestData
             )
         }
 
+        request.url.encodedPath.endsWith("/payment_sources/setup-tokens/${MobileSDKTestConstants.PayPalVault.MOCK_SETUP_TOKEN}/tokens") -> {
+            respondError(
+                content = MockResponseFileReader("paypal/failure_payment_token_response.json").content,
+                status = HttpStatusCode.BadRequest,
+                headers = headersOf(HttpHeaders.ContentType, "application/json")
+            )
+        }
+
+        request.url.encodedPath.endsWith("/payment_sources/setup-tokens") -> {
+            respondError(
+                content = MockResponseFileReader("paypal/failure_setup_token_response.json").content,
+                status = HttpStatusCode.BadRequest,
+                headers = headersOf(HttpHeaders.ContentType, "application/json")
+            )
+        }
+
         request.url.encodedPath.endsWith("/charges/wallet/capture") -> {
             respondError(
                 content = MockResponseFileReader("wallet/failure_capture_wallet_response.json").content,
@@ -228,6 +278,22 @@ private fun MockRequestHandleScope.handleFailureRequest(request: HttpRequestData
         request.url.encodedPath.endsWith("/charges/wallet/${MobileSDKTestConstants.Charge.MOCK_INVALID_CHARGE_ID}/decline") -> {
             respondError(
                 content = MockResponseFileReader("wallet/failure_decline_wallet_invalid_chargeid_response.json").content,
+                status = HttpStatusCode.BadRequest,
+                headers = headersOf(HttpHeaders.ContentType, "application/json")
+            )
+        }
+
+        request.url.encodedPath.endsWith("/gateways/${MobileSDKTestConstants.General.MOCK_INVALID_GATEWAY_ID}/wallet-config") -> {
+            respondError(
+                content = MockResponseFileReader("gateway/failure_wallet_config_response.json").content,
+                status = HttpStatusCode.BadRequest,
+                headers = headersOf(HttpHeaders.ContentType, "application/json")
+            )
+        }
+
+        request.url.encodedPath.endsWith("/bin-management/card_schemas") -> {
+            respondError(
+                content = MockResponseFileReader("card/failure_get_card_schemas_response.json").content,
                 status = HttpStatusCode.BadRequest,
                 headers = headersOf(HttpHeaders.ContentType, "application/json")
             )

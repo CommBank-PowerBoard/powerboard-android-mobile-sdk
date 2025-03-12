@@ -1,5 +1,6 @@
 package com.paydock.designsystems.components
 
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotEnabled
@@ -10,12 +11,15 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.paydock.core.BaseUITest
+import com.paydock.designsystems.components.input.SdkTextField
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
+@OptIn(ExperimentalComposeUiApi::class)
 @RunWith(AndroidJUnit4::class)
-class SdkTextFieldTest {
+internal class SdkTextFieldTest : BaseUITest() {
 
     @get:Rule
     val composeTestRule = createComposeRule()

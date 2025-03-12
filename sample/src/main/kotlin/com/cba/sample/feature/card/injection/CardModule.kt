@@ -20,15 +20,15 @@ class CardModule {
 
     @Singleton
     @Provides
-    fun provideCardApi(retrofit: Retrofit): CardApi {
+    fun provideTokensApi(retrofit: Retrofit): CardApi {
         return retrofit.create(CardApi::class.java)
     }
 
     @Singleton
     @Provides
-    fun provideCardRepository(
+    fun provideTokensRepository(
         @Named("IO") dispatcher: CoroutineDispatcher,
-        cardApi: CardApi
+        cardApi: CardApi,
     ): CardRepository {
         return CardRepositoryImpl(dispatcher, cardApi)
     }

@@ -1,18 +1,21 @@
 package com.cba.sample.feature.threeDS.data.api.dto
 
-import com.cba.sample.feature.wallet.data.api.dto.Customer
+import com.cba.sample.core.AMOUNT
+import com.cba.sample.core.AU_CURRENCY_CODE
+import com.cba.sample.feature.checkout.data.api.dto.ChargesCustomerDTO
 import com.google.gson.annotations.SerializedName
+import java.math.BigDecimal
 
 data class CreateIntegratedThreeDSTokenRequest(
     val token: String? = null,
-    val amount: String = "10",
-    val currency: String = "AUD",
-    val customer: Customer? = null,
-    @SerializedName("_3ds") val threeDSDetails: ThreeDSDetails = ThreeDSDetails()
+    val amount: BigDecimal = BigDecimal(AMOUNT),
+    val currency: String = AU_CURRENCY_CODE,
+    val customer: ChargesCustomerDTO? = null,
+    @SerializedName("_3ds") val threeDSDetails: ThreeDSDetails = ThreeDSDetails(),
     // We do not need any other request properties (ie. customer, shipping)
 ) {
     data class ThreeDSDetails(
-        @SerializedName("browser_details") val browserDetails: BrowserDetails = BrowserDetails()
+        @SerializedName("browser_details") val browserDetails: BrowserDetails = BrowserDetails(),
     )
 
     data class BrowserDetails(

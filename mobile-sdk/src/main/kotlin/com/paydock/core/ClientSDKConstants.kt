@@ -16,11 +16,11 @@ internal object ClientSDKConstants {
      */
     object Library {
         internal const val PROD =
-            "https://widget.powerboard.commbank.com.au/sdk/v1.108.3/widget.umd.min.js"
+            "https://widget.powerboard.commbank.com.au/sdk/v1.116.4/widget.umd.min.js"
         internal const val PRE_PRODUCTION =
-            "https://widget.preproduction.powerboard.commbank.com.au/sdk/v1.108.3-beta/widget.umd.min.js"
+            "https://widget.preproduction.powerboard.commbank.com.au/sdk/v1.116.4/widget.umd.min.js"
         internal const val STAGING =
-            "https://widget.staging.powerboard.commbank.com.au/sdk/v1.108.3-beta/widget.umd.min.js"
+            "https://widget.staging.powerboard.commbank.com.au/sdk/v1.116.3-beta/widget.umd.min.js"
     }
 
     /**
@@ -30,24 +30,6 @@ internal object ClientSDKConstants {
         internal const val STAGING_CBA = "staging_cba"
         internal const val PRE_PRODUCTION_CBA = "preproduction_cba"
         internal const val PROD_CBA = "production_cba"
-    }
-
-    /**
-     * Object holding SSL pin constants for different environments.
-     *
-     * The `SSLPin` object contains the SSL pin values for various environments
-     * used by the client SDK. These pins are used to ensure the integrity and
-     * security of the SSL/TLS connections.
-     *
-     * The constants defined are:
-     * - `PROD`: SSL pin for the production environment.
-     * - `PRE_PRODUCTION`: SSL pin for the pre-production environment.
-     * - `STAGING`: SSL pin for the staging environment.
-     */
-    object SSLPin {
-        internal const val PROD = "sha256/ANeVqeyziLbTX8TPdQWbFGVb9VXpDDIMvYuDIwORdKU="
-        internal const val PRE_PRODUCTION = "sha256/qKd2CMivb7/p4pfHpSEgnTBLlC0DapGIg5deIqBmmSM="
-        internal const val STAGING = "sha256/R52wq7mz8B99wah+Vj5xtnS4GHWuCZBOP3aP+GjEOpU="
     }
 
 }

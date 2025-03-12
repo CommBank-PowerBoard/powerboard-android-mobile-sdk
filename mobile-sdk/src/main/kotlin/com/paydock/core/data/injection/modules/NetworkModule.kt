@@ -13,14 +13,7 @@ import org.koin.dsl.module
  * - Singleton components are kept unique within the Koin container.
  * - Factory components provide a new instance each time they are requested.
  */
-/**
- * Network-based module for handling network components using Ktor.
- *
- * This module provides singleton and factory components for network operations.
- * - Singleton components are kept unique within the Koin container.
- * - Factory components provide a new instance each time they are requested.
- */
-val networkModule = module {
+internal val networkModule = module {
     includes(dispatchersModule)
     single {
         NetworkClientBuilder.create()

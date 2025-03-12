@@ -5,39 +5,33 @@ import com.cba.sample.feature.card.data.api.dto.CaptureCardChargeRequest
 import com.cba.sample.feature.card.data.api.dto.TokeniseCardRequest
 import com.cba.sample.feature.card.data.api.dto.VaultTokenRequest
 import com.cba.sample.feature.card.domain.repository.CardRepository
-import com.paydock.feature.charge.domain.model.ChargeResponse
+import com.cba.sample.feature.checkout.data.mapper.toDomain
+import com.paydock.feature.wallet.domain.model.integration.ChargeResponse
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 class CardRepositoryImpl @Inject constructor(
     private val dispatcher: CoroutineDispatcher,
-    private val cardApi: CardApi
+    private val cardApi: CardApi,
 ) : CardRepository {
 
     override suspend fun tokeniseCardDetails(
-        accessToken: String,
-        request: TokeniseCardRequest
+        request: TokeniseCardRequest,
     ): String =
         withContext(dispatcher) {
             cardApi.tokeniseCardDetails(
-                accessToken = accessToken,
                 request = request
             ).resource.resourceData
         }
 
-    override suspend fun createCardVaultToken(request: VaultTokenRequest.CreateCardVaultTokenRequest): String =
-        withContext(dispatcher) {
-            cardApi.createVaultToken(request = request).resource.resourceData.token
-        }
-
-    override suspend fun createCardVaultToken(request: VaultTokenRequest.CreateCardSessionVaultTokenRequest): String =
-        withContext(dispatcher) {
-            cardApi.createVaultToken(request = request).resource.resourceData.token
-        }
-
     override suspend fun captureCardCharge(request: CaptureCardChargeRequest): ChargeResponse =
         withContext(dispatcher) {
-            cardApi.captureCharge(request = request)
+            cardApi.captureCharge(request = request).toDomain()
+        }
+
+    override suspend fun createCardVaultToken(request: VaultTokenRequest): String =
+        withContext(dispatcher) {
+            cardApi.createVaultToken(request = request).resource.resourceData.token
         }
 }

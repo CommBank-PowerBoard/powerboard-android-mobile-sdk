@@ -5,18 +5,23 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.cba.sample.designsystems.theme.SampleTheme
-import com.paydock.feature.charge.domain.model.ChargeResponse
-import com.paydock.feature.paypal.presentation.PayPalWidget
+import com.paydock.core.presentation.util.WidgetLoadingDelegate
+import com.paydock.feature.paypal.checkout.presentation.PayPalWidget
+import com.paydock.feature.wallet.domain.model.integration.ChargeResponse
 
 @Composable
 fun PayPalContent(
+    enabled: Boolean = true,
     tokenHandler: (onTokenReceived: (String) -> Unit) -> Unit,
-    resultHandler: (Result<ChargeResponse>) -> Unit
+    loadingDelegate: WidgetLoadingDelegate? = null,
+    resultHandler: (Result<ChargeResponse>) -> Unit,
 ) {
     PayPalWidget(
         modifier = Modifier.fillMaxWidth(),
+        enabled = enabled,
         token = tokenHandler,
         requestShipping = false,
+        loadingDelegate = loadingDelegate,
         completion = resultHandler
     )
 }
@@ -25,6 +30,6 @@ fun PayPalContent(
 @Preview
 private fun PayPalContentDefault() {
     SampleTheme {
-        PayPalContent({}, {})
+        PayPalContent(true, {}, null, {})
     }
 }

@@ -6,9 +6,6 @@ import com.paydock.core.MobileSDKTestConstants
 import com.paydock.core.network.extensions.convertToDataClass
 import com.paydock.core.utils.jwt.models.MetaTokenPayload
 import com.paydock.core.utils.jwt.models.WalletTokenPayload
-import io.mockk.every
-import io.mockk.mockkStatic
-import io.mockk.slot
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Test
@@ -21,23 +18,9 @@ import kotlin.test.assertTrue
 @RunWith(MockitoJUnitRunner::class)
 class JwtHelperTest : BaseUnitTest() {
 
-    override fun setUpMocks() {
-        super.setUpMocks()
-        mockkStatic(android.util.Base64::class)
-        val b64Encoded = slot<String>()
-        val flags = slot<Int>()
-        every { android.util.Base64.decode(capture(b64Encoded), capture(flags)) } coAnswers {
-            java.util.Base64.getDecoder().decode(this.args[0] as String)
-        }
-    }
-
     @Test
     fun `test getWalletTokenPayload for SDK_INT = 33 returns expected parsed wallet token payload`() {
         // Arrange
-        setStaticFieldViaReflection(
-            Build.VERSION::class.java.getDeclaredField("SDK_INT"),
-            Build.VERSION_CODES.TIRAMISU
-        )
         setStaticFieldViaReflection(
             Build.VERSION::class.java.getDeclaredField("SDK_INT"),
             Build.VERSION_CODES.TIRAMISU

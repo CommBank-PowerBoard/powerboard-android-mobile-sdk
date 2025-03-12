@@ -3,7 +3,6 @@ package com.cba.sample.feature.card
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.cba.sample.core.TOKENISE_CARD_ERROR
-import com.cba.sample.core.presentation.utils.AccessTokenProvider
 import com.cba.sample.feature.card.data.api.dto.TokeniseCardRequest
 import com.cba.sample.feature.card.data.api.dto.VaultTokenRequest
 import com.cba.sample.feature.card.domain.usecase.CreateCardVaultTokenUseCase
@@ -17,9 +16,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class CardViewModel @Inject constructor(
-    private val accessTokenProvider: AccessTokenProvider,
     private val tokeniseCardUseCase: TokeniseCardUseCase,
-    private val createCardVaultTokenUseCase: CreateCardVaultTokenUseCase
+    private val createCardVaultTokenUseCase: CreateCardVaultTokenUseCase,
 ) : ViewModel() {
 
     private val _stateFlow: MutableStateFlow<CardUIState> =
@@ -28,11 +26,10 @@ class CardViewModel @Inject constructor(
 
     fun tokeniseCardDetails() {
         viewModelScope.launch {
-            val accessToken = accessTokenProvider.accessToken.value
             _stateFlow.update { state ->
                 state.copy(isLoading = true)
             }
-            val result = tokeniseCardUseCase(accessToken, TokeniseCardRequest())
+            val result = tokeniseCardUseCase(TokeniseCardRequest())
             result.onSuccess { token ->
                 _stateFlow.update { state ->
                     state.copy(token = token, isLoading = false, error = null)
@@ -84,5 +81,5 @@ class CardViewModel @Inject constructor(
 data class CardUIState(
     val isLoading: Boolean = true,
     val token: String? = null,
-    val error: String? = null
+    val error: String? = null,
 )

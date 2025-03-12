@@ -3,6 +3,7 @@ package com.paydock.core.data.network
 import android.content.Context
 import com.paydock.MobileSDK
 import com.paydock.core.BaseUnitTest
+import com.paydock.core.MobileSDKConstants
 import com.paydock.core.data.injection.modules.mockSuccessNetworkModule
 import com.paydock.core.data.injection.modules.sslFailNetworkTestModule
 import com.paydock.core.data.injection.modules.sslSuccessNetworkTestModule
@@ -22,6 +23,7 @@ import org.koin.core.context.GlobalContext.loadKoinModules
 import org.koin.core.context.GlobalContext.unloadKoinModules
 import org.koin.core.context.stopKoin
 import org.koin.test.inject
+import javax.net.ssl.SSLHandshakeException
 import javax.net.ssl.SSLPeerUnverifiedException
 import kotlin.test.Test
 import kotlin.test.assertFails
@@ -31,7 +33,7 @@ import kotlin.test.fail
 /**
  * This class contains unit tests for testing SSL pinning.
  */
-class SslPinningTest : BaseUnitTest() {
+internal class SslPinningTest : BaseUnitTest() {
 
     private lateinit var context: Context
 
@@ -56,7 +58,7 @@ class SslPinningTest : BaseUnitTest() {
     }
 
     /**
-     * Tests that the application fails if the certificate for `commbank.com.au` is not pinned.
+     * Tests that the application fails if the certificate for `paydock.com` is not pinned.
      */
     @Test
     fun `should fail if incorrect certificate is pinned`() = runTest {
@@ -67,13 +69,13 @@ class SslPinningTest : BaseUnitTest() {
         unloadKoinModules(mockSuccessNetworkModule)
         loadKoinModules(sslFailNetworkTestModule)
 
-        // Create a client and try to make a request to `https://www.commbank.com.au/`.
+        // Create a client and try to make a request to `https://paydock.com`.
         val client: HttpClient by inject()
-        assertFails { client.get("https://www.commbank.com.au/") }
+        assertFails { client.get(MobileSDKConstants.DEFAULT_WEB_URL) }
     }
 
     /**
-     * Tests that the application fails if using invalid hostname that does not match `commbank.com.au'.
+     * Tests that the application fails if using invalid hostname that does not match `paydock.com'.
      */
     @Test
     fun `should fail if requesting invalid hostname`() = runTest {
@@ -143,6 +145,8 @@ class SslPinningTest : BaseUnitTest() {
             }
         } catch (e: SSLPeerUnverifiedException) {
             fail(e.message)
+        } catch (e: SSLHandshakeException) {
+            fail(e.message)
         } catch (e: Exception) {
             // It should fail here to invalid authentication: Access forbidden
             assertIs<ApiException>(e)
@@ -173,10 +177,11 @@ class SslPinningTest : BaseUnitTest() {
             }
         } catch (e: SSLPeerUnverifiedException) {
             fail(e.message)
+        } catch (e: SSLHandshakeException) {
+            fail(e.message)
         } catch (e: Exception) {
             // It should fail here to invalid authentication: Access forbidden
             assertIs<ApiException>(e)
         }
     }
-
 }

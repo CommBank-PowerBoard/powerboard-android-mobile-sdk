@@ -1,45 +1,72 @@
 package com.paydock.feature.wallet.domain.repository
 
-import com.paydock.feature.charge.domain.model.ChargeResponse
-import com.paydock.feature.wallet.data.api.dto.WalletCallbackRequest
-import com.paydock.feature.wallet.data.api.dto.WalletCaptureRequest
-import com.paydock.feature.wallet.data.api.dto.WalletCaptureResponse
-import com.paydock.feature.wallet.domain.model.WalletCallback
+import com.paydock.feature.wallet.data.dto.CaptureWalletChargeRequest
+import com.paydock.feature.wallet.data.dto.WalletCallbackRequest
+import com.paydock.feature.wallet.domain.model.integration.ChargeResponse
+import com.paydock.feature.wallet.domain.model.ui.WalletCallback
 
 /**
- * A repository interface responsible for capturing wallet transactions.
+ * Repository interface for handling wallet-related operations.
+ *
+ * The [WalletRepository] interface defines methods to capture, decline,
+ * and retrieve wallet charge and transaction data. Implementations of this
+ * interface handle communication with the data source (e.g., network or database)
+ * to perform operations related to wallet transactions.
  */
 internal interface WalletRepository {
 
     /**
-     * Capture a wallet transaction with the provided token and request details.
+     * Captures a wallet transaction for a given token and request.
      *
-     * @param token The authentication token required for the transaction.
-     * @param request The request object containing transaction details.
-     * @return A [WalletCaptureResponse] representing the result of the transaction capture.
+     * This method triggers the capture of a charge against a wallet transaction
+     * using the provided token and [CaptureWalletChargeRequest]. The result is returned
+     * as a [ChargeResponse].
+     *
+     * @param token The access token used for authorization.
+     * @param request The request data containing details for capturing the charge.
+     * @return The [ChargeResponse] containing the result of the capture.
      */
     suspend fun captureWalletTransaction(
         token: String,
-        request: WalletCaptureRequest
+        request: CaptureWalletChargeRequest
     ): ChargeResponse
 
     /**
-     * Decline a wallet transaction with the provided chargeId.
+     * Declines a wallet charge for a given token and charge ID.
      *
-     * @param token The authentication token required for the transaction.
-     * @param chargeId The chargeId required for the transaction.
-     * @return A [WalletCaptureResponse] representing the result of the transaction decline.
+     * This method is used to decline a previously initiated wallet charge
+     * using the provided token and charge ID. The result is returned as a [ChargeResponse].
+     *
+     * @param token The access token used for authorization.
+     * @param chargeId The ID of the charge to be declined.
+     * @return The [ChargeResponse] containing the result of the decline operation.
      */
-    suspend fun declineWalletTransaction(token: String, chargeId: String): ChargeResponse
+    suspend fun declineWalletCharge(token: String, chargeId: String): ChargeResponse
 
     /**
-     * Retrieve wallet callback information from the server.
+     * Retrieves wallet callback data for a given token and request.
      *
-     * @param token The authentication token for accessing the wallet callback information.
-     * @param request The request object specifying the details of the wallet callback request.
+     * This method retrieves the callback data related to a wallet transaction,
+     * including any necessary callback URLs and status information. The result
+     * is returned as a [WalletCallback].
      *
-     * @return A callback details representing the wallet callback information retrieved from the server.
+     * @param token The access token used for authorization.
+     * @param request The request data containing details for fetching the wallet callback.
+     * @return The [WalletCallback] containing the retrieved callback data.
      */
     suspend fun getWalletCallback(token: String, request: WalletCallbackRequest): WalletCallback
+
+    /**
+     * Retrieves the Payment Source client ID for a specific wallet payment gateway.
+     *
+     * This function sends a request to fetch the client ID associated with the provided gateway
+     * identifier. It uses the provided OAuth token for authentication. The client ID is required to
+     * initiate gateway transactions.
+     *
+     * @param accessToken The OAuth token used for authenticating the request.
+     * @param gatewayId The identifier for the payment gateway.
+     * @return The client ID if available, or `null` if the client ID could not be retrieved.
+     */
+    suspend fun getWalletGatewayClientId(accessToken: String, gatewayId: String): String
 
 }

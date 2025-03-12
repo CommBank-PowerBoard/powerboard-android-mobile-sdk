@@ -11,23 +11,22 @@ import retrofit2.http.Path
 
 interface WalletApi {
 
-    @POST("/v1/charges/wallet?capture=false")
-    suspend fun initiateWalletTransactionManualCapture(
-        @Header("x-user-secret-key") secretKey: String = BuildConfig.SECRET_KEY,
-        @Body request: InitiateWalletRequest
-    ): WalletInitiateResponse
-
     @POST("/v1/charges/wallet")
     suspend fun initiateWalletTransaction(
-        @Header("x-user-secret-key") secretKey: String = BuildConfig.SECRET_KEY,
-        @Body request: InitiateWalletRequest
+        @Header("X-Access-Token") accessToken: String = BuildConfig.API_ACCESS_TOKEN,
+        @Body request: InitiateWalletRequest,
+    ): WalletInitiateResponse
+
+    @POST("/v1/charges/wallet?capture=false")
+    suspend fun initiateWalletTransactionManualCapture(
+        @Header("X-Access-Token") accessToken: String = BuildConfig.API_ACCESS_TOKEN,
+        @Body request: InitiateWalletRequest,
     ): WalletInitiateResponse
 
     @POST("/v1/charges/{id}/capture")
     suspend fun captureWalletCharge(
-        @Header("x-user-secret-key") secretKey: String = BuildConfig.SECRET_KEY,
-        @Path("id") id: String
+        @Header("X-Access-Token") accessToken: String = BuildConfig.API_ACCESS_TOKEN,
+        @Path("id") id: String,
     ): WalletCaptureResponse
-
 
 }

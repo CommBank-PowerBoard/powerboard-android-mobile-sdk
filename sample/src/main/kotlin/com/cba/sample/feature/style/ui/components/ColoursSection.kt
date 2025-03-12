@@ -37,6 +37,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -52,7 +53,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun ColoursSection(
     colorTheme: ThemeColors.ThemeColor,
-    onColorUpdated: (ThemeColors.ThemeColor) -> Unit
+    onColorUpdated: (ThemeColors.ThemeColor) -> Unit,
 ) {
     // Creates list of actual theming colours to show
     val colourThemeItems = remember {
@@ -63,7 +64,8 @@ fun ColoursSection(
             ColourTheme("Placeholder", colorTheme.placeholder),
             ColourTheme("Success", colorTheme.success),
             ColourTheme("Error", colorTheme.error),
-            ColourTheme("Background", colorTheme.background)
+            ColourTheme("Background", colorTheme.background),
+            ColourTheme("Outline", colorTheme.outline)
         )
     }
     // Handles selected item for updating colour
@@ -79,14 +81,14 @@ fun ColoursSection(
     fun updateColorThemeItem(updatedItem: ColourTheme): ThemeColors.ThemeColor {
         // Update the specific color in the ThemeColors.ThemeColor object
         val updatedThemeColor = when (updatedItem.themeName) {
-            "Primary" -> colorTheme.copy(primary = updatedItem.color)
-            "On Primary" -> colorTheme.copy(onPrimary = updatedItem.color)
-            "Text" -> colorTheme.copy(text = updatedItem.color)
-            "Placeholder" -> colorTheme.copy(placeholder = updatedItem.color)
-            "Success" -> colorTheme.copy(success = updatedItem.color)
-            "Error" -> colorTheme.copy(error = updatedItem.color)
-            "Background" -> colorTheme.copy(background = updatedItem.color)
-            "Outline" -> colorTheme.copy(outline = updatedItem.color)
+            "Primary" -> colorTheme.with(primary = updatedItem.color)
+            "On Primary" -> colorTheme.with(onPrimary = updatedItem.color)
+            "Text" -> colorTheme.with(text = updatedItem.color)
+            "Placeholder" -> colorTheme.with(placeholder = updatedItem.color)
+            "Success" -> colorTheme.with(success = updatedItem.color)
+            "Error" -> colorTheme.with(error = updatedItem.color)
+            "Background" -> colorTheme.with(background = updatedItem.color)
+            "Outline" -> colorTheme.with(outline = updatedItem.color)
             else -> colorTheme
         }
         return updatedThemeColor
@@ -112,7 +114,7 @@ fun ColoursSection(
         ModalBottomSheet(
             containerColor = Color.White,
             // This is to show above device navigation
-            windowInsets = WindowInsets(bottom = 30.dp),
+            contentWindowInsets = { WindowInsets(bottom = 30.dp) },
             onDismissRequest = {
                 showBottomSheet = false
             },
@@ -168,12 +170,12 @@ sealed class Footer {
     sealed class ButtonSingle : Footer() {
         data class NegativeButton(
             val negativeBtnLabel: String,
-            val onClickNegative: (() -> Unit)?
+            val onClickNegative: (() -> Unit)?,
         ) : Footer()
 
         data class PositiveButton(
             val positiveBtnLabel: String,
-            val onClickPositive: (() -> Unit)?
+            val onClickPositive: (() -> Unit)?,
         ) : Footer()
     }
 
@@ -181,7 +183,7 @@ sealed class Footer {
         val negativeBtnLabel: String,
         val onClickNegative: (() -> Unit)?,
         val positiveBtnLabel: String,
-        val onClickPositive: (() -> Unit)?
+        val onClickPositive: (() -> Unit)?,
     ) : Footer()
 }
 
@@ -190,13 +192,14 @@ sealed class Footer {
 fun ModalBottomSheetTest(
     header: Header,
     content: Content,
-    footer: Footer
+    footer: Footer,
 ) {
     val coroutine = rememberCoroutineScope()
     val sheetState = rememberBottomSheetScaffoldState(
         bottomSheetState = SheetState(
             skipPartiallyExpanded = true,
-            initialValue = SheetValue.Hidden
+            initialValue = SheetValue.Hidden,
+            density = LocalDensity.current
         )
     )
     BottomSheetScaffold(
@@ -218,7 +221,7 @@ fun ModalBottomSheetTest(
 class BottomSheetState(
     header: Header,
     content: Content,
-    footer: Footer
+    footer: Footer,
 ) {
     var imageResourceId: Int? = null
         private set
@@ -297,7 +300,7 @@ class BottomSheetState(
 fun BottomSheetContent(
     state: BottomSheetState,
     coroutineScope: CoroutineScope,
-    sheetState: SheetState
+    sheetState: SheetState,
 ) {
     val configuration = LocalConfiguration.current
 
@@ -330,6 +333,7 @@ fun BottomSheetContent(
                 state.negativeButton,
                 state.positiveLabel,
                 state.positiveButton,
+                state.onClickNegative,
                 state.onClickPositive,
                 coroutineScope,
                 sheetState
@@ -340,7 +344,7 @@ fun BottomSheetContent(
 
 @Composable
 fun header(
-    imageResourceId: Int
+    imageResourceId: Int,
 ) {
     Box(
         modifier = Modifier
@@ -352,7 +356,7 @@ fun header(
 @Composable
 fun content(
     titleText: String,
-    valueText: String
+    valueText: String,
 ) {
     Text(text = titleText)
     Spacer(modifier = Modifier.height(24.dp))
@@ -366,9 +370,10 @@ fun footer(
     negativeButton: Boolean,
     positiveLabel: String,
     positiveButton: Boolean,
+    onClickNegative: (() -> Unit)?,
     onClickPositive: (() -> Unit)?,
     coroutine: CoroutineScope,
-    sheetState: SheetState
+    sheetState: SheetState,
 ) {
     if (positiveButton) {
         Button(onClick = onClickPositive!!) {
@@ -379,6 +384,7 @@ fun footer(
     if (negativeButton) {
         OutlinedButton(
             onClick = {
+                onClickNegative?.invoke()
                 bottomSheetVisibility(coroutine, sheetState)
             }
         ) {

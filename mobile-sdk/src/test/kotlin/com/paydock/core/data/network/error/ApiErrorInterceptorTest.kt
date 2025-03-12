@@ -23,7 +23,7 @@ import kotlin.test.assertIs
 import kotlin.test.assertNotNull
 
 @Suppress("MaxLineLength")
-class ApiErrorInterceptorTest : BaskMockServerUnitTest() {
+internal class ApiErrorInterceptorTest : BaskMockServerUnitTest() {
 
     @Before
     fun setup() {

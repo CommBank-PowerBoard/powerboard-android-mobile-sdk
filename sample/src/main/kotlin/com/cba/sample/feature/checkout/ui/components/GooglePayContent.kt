@@ -11,9 +11,9 @@ import com.cba.sample.core.AU_CURRENCY_CODE
 import com.cba.sample.core.COUNTRY_CODE_LIST
 import com.cba.sample.core.MERCHANT_NAME
 import com.cba.sample.designsystems.theme.SampleTheme
-import com.paydock.feature.charge.domain.model.ChargeResponse
 import com.paydock.feature.googlepay.presentation.GooglePayWidget
 import com.paydock.feature.googlepay.util.PaymentsUtil
+import com.paydock.feature.wallet.domain.model.integration.ChargeResponse
 import org.json.JSONArray
 import org.json.JSONObject
 import java.math.BigDecimal
@@ -21,7 +21,7 @@ import java.math.BigDecimal
 @Composable
 fun GooglePayContent(
     tokenHandler: (onTokenReceived: (String) -> Unit) -> Unit,
-    resultHandler: (Result<ChargeResponse>) -> Unit
+    resultHandler: (Result<ChargeResponse>) -> Unit,
 ) {
     val shippingAddressParameters = JSONObject().apply {
         put("phoneNumberRequired", false)

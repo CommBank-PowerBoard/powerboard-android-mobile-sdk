@@ -5,11 +5,12 @@ import com.paydock.core.MobileSDKTestConstants
 import com.paydock.core.data.injection.modules.mockFailureNetworkModule
 import com.paydock.core.data.injection.modules.mockSuccessNetworkModule
 import com.paydock.core.network.extensions.convertToDataClass
-import com.paydock.feature.wallet.data.api.dto.WalletCallbackRequest
-import com.paydock.feature.wallet.data.api.dto.WalletCallbackResponse
-import com.paydock.feature.wallet.data.api.dto.WalletCaptureRequest
-import com.paydock.feature.wallet.data.api.dto.WalletCaptureResponse
-import com.paydock.feature.wallet.data.api.dto.WalletDeclineResponse
+import com.paydock.feature.wallet.data.dto.CaptureChargeResponse
+import com.paydock.feature.wallet.data.dto.CaptureWalletChargeRequest
+import com.paydock.feature.wallet.data.dto.ChargeDeclineResponse
+import com.paydock.feature.wallet.data.dto.WalletCallbackRequest
+import com.paydock.feature.wallet.data.dto.WalletCallbackResponse
+import com.paydock.feature.wallet.data.dto.WalletConfigResponse
 import com.paydock.feature.wallet.data.mapper.asEntity
 import com.paydock.feature.wallet.domain.repository.WalletRepository
 import io.ktor.client.HttpClient
@@ -24,7 +25,7 @@ import org.koin.test.inject
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 
-class WalletRepositoryTest : BaseKoinUnitTest() {
+internal class WalletRepositoryTest : BaseKoinUnitTest() {
 
     private val httpMockClient: HttpClient by inject()
 
@@ -39,9 +40,11 @@ class WalletRepositoryTest : BaseKoinUnitTest() {
             repository = WalletRepositoryImpl(get(), httpMockClient)
 
             val request =
-                readResourceFile("wallet/valid_googlepay_capture_wallet_charge_request.json").convertToDataClass<WalletCaptureRequest>()
+                readResourceFile("wallet/valid_googlepay_capture_wallet_charge_request.json")
+                    .convertToDataClass<CaptureWalletChargeRequest>()
             val response =
-                readResourceFile("wallet/success_capture_wallet_response.json").convertToDataClass<WalletCaptureResponse>()
+                readResourceFile("wallet/success_capture_wallet_response.json")
+                    .convertToDataClass<CaptureChargeResponse>()
             val entity = response.asEntity()
             // WHEN - Call the method to be tested
             val result = repository.captureWalletTransaction(accessToken, request)
@@ -58,9 +61,11 @@ class WalletRepositoryTest : BaseKoinUnitTest() {
             repository = WalletRepositoryImpl(get(), httpMockClient)
 
             val request =
-                readResourceFile("wallet/valid_paypal_capture_wallet_charge_request.json").convertToDataClass<WalletCaptureRequest>()
+                readResourceFile("wallet/valid_paypal_capture_wallet_charge_request.json")
+                    .convertToDataClass<CaptureWalletChargeRequest>()
             val response =
-                readResourceFile("wallet/success_capture_wallet_response.json").convertToDataClass<WalletCaptureResponse>()
+                readResourceFile("wallet/success_capture_wallet_response.json")
+                    .convertToDataClass<CaptureChargeResponse>()
             val entity = response.asEntity()
             // WHEN - Call the method to be tested
             val result = repository.captureWalletTransaction(accessToken, request)
@@ -77,9 +82,11 @@ class WalletRepositoryTest : BaseKoinUnitTest() {
             repository = WalletRepositoryImpl(get(), httpMockClient)
 
             val request =
-                readResourceFile("wallet/valid_afterpay_capture_wallet_charge_request.json").convertToDataClass<WalletCaptureRequest>()
+                readResourceFile("wallet/valid_afterpay_capture_wallet_charge_request.json")
+                    .convertToDataClass<CaptureWalletChargeRequest>()
             val response =
-                readResourceFile("wallet/success_capture_wallet_response.json").convertToDataClass<WalletCaptureResponse>()
+                readResourceFile("wallet/success_capture_wallet_response.json")
+                    .convertToDataClass<CaptureChargeResponse>()
             val entity = response.asEntity()
             // WHEN - Call the method to be tested
             val result = repository.captureWalletTransaction(accessToken, request)
@@ -98,7 +105,8 @@ class WalletRepositoryTest : BaseKoinUnitTest() {
             // GIVEN
             repository = WalletRepositoryImpl(get(), httpMockClient)
             val request =
-                readResourceFile("wallet/valid_googlepay_capture_wallet_charge_request.json").convertToDataClass<WalletCaptureRequest>()
+                readResourceFile("wallet/valid_googlepay_capture_wallet_charge_request.json")
+                    .convertToDataClass<CaptureWalletChargeRequest>()
             // WHEN - Call the method to be tested
             val result = repository.captureWalletTransaction(invalidAccessToken, request)
             // THEN - It should throw an exception
@@ -114,9 +122,11 @@ class WalletRepositoryTest : BaseKoinUnitTest() {
             repository = WalletRepositoryImpl(get(), httpMockClient)
 
             val request =
-                readResourceFile("wallet/valid_paypal_wallet_callback_request.json").convertToDataClass<WalletCallbackRequest>()
+                readResourceFile("wallet/valid_paypal_wallet_callback_request.json")
+                    .convertToDataClass<WalletCallbackRequest>()
             val response =
-                readResourceFile("wallet/success_paypal_wallet_callback_response.json").convertToDataClass<WalletCallbackResponse>()
+                readResourceFile("wallet/success_paypal_wallet_callback_response.json")
+                    .convertToDataClass<WalletCallbackResponse>()
             val entity = response.asEntity()
             // WHEN - Call the method to be tested
             val result = repository.getWalletCallback(accessToken, request)
@@ -134,9 +144,11 @@ class WalletRepositoryTest : BaseKoinUnitTest() {
             repository = WalletRepositoryImpl(get(), httpMockClient)
 
             val request =
-                readResourceFile("wallet/valid_afterpay_wallet_callback_request.json").convertToDataClass<WalletCallbackRequest>()
+                readResourceFile("wallet/valid_afterpay_wallet_callback_request.json")
+                    .convertToDataClass<WalletCallbackRequest>()
             val response =
-                readResourceFile("wallet/success_afterpay_wallet_callback_response.json").convertToDataClass<WalletCallbackResponse>()
+                readResourceFile("wallet/success_afterpay_wallet_callback_response.json")
+                    .convertToDataClass<WalletCallbackResponse>()
 
             val entity = response.asEntity()
             // WHEN - Call the method to be tested
@@ -157,7 +169,8 @@ class WalletRepositoryTest : BaseKoinUnitTest() {
             // GIVEN
             repository = WalletRepositoryImpl(get(), httpMockClient)
             val request =
-                readResourceFile("wallet/invalid_wallet_callback_request.json").convertToDataClass<WalletCallbackRequest>()
+                readResourceFile("wallet/invalid_wallet_callback_request.json")
+                    .convertToDataClass<WalletCallbackRequest>()
             // WHEN - Call the method to be tested
             val result = repository.getWalletCallback(accessToken, request)
             // THEN - It should throw an exception
@@ -174,11 +187,12 @@ class WalletRepositoryTest : BaseKoinUnitTest() {
             repository = WalletRepositoryImpl(get(), httpMockClient)
 
             val response =
-                readResourceFile("wallet/success_afterpay_decline_wallet_charge_response.json").convertToDataClass<WalletDeclineResponse>()
+                readResourceFile("wallet/success_afterpay_decline_wallet_charge_response.json")
+                    .convertToDataClass<ChargeDeclineResponse>()
 
             val entity = response.asEntity()
             // WHEN - Call the method to be tested
-            val result = repository.declineWalletTransaction(accessToken, chargeId)
+            val result = repository.declineWalletCharge(accessToken, chargeId)
             // THEN - Verify the result
 
             assertNotNull(response)
@@ -196,7 +210,43 @@ class WalletRepositoryTest : BaseKoinUnitTest() {
             // GIVEN
             repository = WalletRepositoryImpl(get(), httpMockClient)
             // WHEN - Call the method to be tested
-            val result = repository.declineWalletTransaction(accessToken, chargeId)
+            val result = repository.declineWalletCharge(accessToken, chargeId)
+            // THEN - It should throw an exception
+            assertNotNull(result)
+        }
+
+    @Test
+    fun `GIVEN paypal gatewayId WHEN fetching wallet config THEN should succeed with paypal clientId`() =
+        testScope.runTest {
+            // GIVEN
+            repository = WalletRepositoryImpl(get(), httpMockClient)
+
+            val response =
+                readResourceFile("gateway/success_wallet_config_response.json")
+                    .convertToDataClass<WalletConfigResponse>()
+            val setupToken = response.resource.data?.credentials?.clientAuth
+            // WHEN - Call the method to be tested
+            val result = repository.getWalletGatewayClientId(
+                MobileSDKTestConstants.General.MOCK_ACCESS_TOKEN,
+                MobileSDKTestConstants.General.MOCK_GATEWAY_ID
+            )
+            // THEN - Verify the result
+            assertNotNull(response)
+            assertEquals(setupToken, result)
+        }
+
+    @Test(expected = ClientRequestException::class)
+    fun `GIVEN invalid gatewayId WHEN fetching wallet config THEN should fail with error response resource`() =
+        testScope.runTest {
+            unloadKoinModules(mockSuccessNetworkModule)
+            loadKoinModules(mockFailureNetworkModule)
+            // GIVEN
+            repository = WalletRepositoryImpl(get(), httpMockClient)
+            // WHEN - Call the method to be tested
+            val result = repository.getWalletGatewayClientId(
+                MobileSDKTestConstants.General.MOCK_ACCESS_TOKEN,
+                MobileSDKTestConstants.General.MOCK_INVALID_GATEWAY_ID
+            )
             // THEN - It should throw an exception
             assertNotNull(result)
         }

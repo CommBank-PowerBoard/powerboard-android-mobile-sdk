@@ -1,5 +1,6 @@
 package com.cba.sample.feature.checkout.ui
 
+import android.widget.Toast
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
@@ -16,7 +17,6 @@ import com.cba.sample.feature.checkout.StandaloneCheckoutViewModel
 import com.cba.sample.feature.checkout.ui.components.Checkout3DSBottomSheet
 import com.cba.sample.feature.checkout.ui.components.CheckoutBaseScreen
 import com.cba.sample.feature.checkout.ui.components.CheckoutBottomSheet
-import com.paydock.core.presentation.ui.extensions.toast
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -38,7 +38,7 @@ fun CheckoutStandalone(viewModel: StandaloneCheckoutViewModel = hiltViewModel())
     LaunchedEffect(uiState.chargeResult) {
         uiState.chargeResult?.let {
             // TODO - Implement a success screen state
-            context.toast("Transaction Successful")
+            Toast.makeText(context, "Transaction Successful", Toast.LENGTH_SHORT).show()
             openBottomSheet = false
         }
     }
@@ -47,22 +47,21 @@ fun CheckoutStandalone(viewModel: StandaloneCheckoutViewModel = hiltViewModel())
         uiState.walletChargeResult?.let { charge ->
             if (charge.status == "complete") {
                 // TODO - Implement a success screen state
-                context.toast("Transaction Successful")
+                Toast.makeText(context, "Transaction Successful", Toast.LENGTH_SHORT).show()
                 openBottomSheet = false
             }
         }
     }
 
     LaunchedEffect(uiState.threeDSToken) {
-        uiState.threeDSToken?.let {
-            open3DSBottomSheet = true
-        }
+        open3DSBottomSheet = uiState.threeDSToken != null
     }
 
     if (!uiState.error.isNullOrBlank()) {
         ErrorDialog(
             onDismissRequest = { viewModel.resetResultState() },
             onConfirmation = {
+                openBottomSheet = false
                 viewModel.resetResultState()
             },
             dialogText = uiState.error!!,
@@ -86,7 +85,9 @@ fun CheckoutStandalone(viewModel: StandaloneCheckoutViewModel = hiltViewModel())
     if (open3DSBottomSheet) {
         Checkout3DSBottomSheet(
             bottom3DSSheetState = bottom3DSSheetState,
-            onDismissRequest = { open3DSBottomSheet = false },
+            onDismissRequest = {
+                open3DSBottomSheet = false
+            },
             vaultToken = uiState.vaultToken,
             threeDSToken = uiState.threeDSToken?.token,
             viewModel = viewModel

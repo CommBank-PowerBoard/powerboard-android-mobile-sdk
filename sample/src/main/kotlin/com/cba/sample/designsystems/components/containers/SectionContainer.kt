@@ -9,16 +9,16 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.cba.sample.designsystems.theme.SampleTheme
-import com.paydock.core.presentation.ui.preview.LightDarkPreview
 
 @Composable
 fun SectionContainer(
     modifier: Modifier = Modifier,
     title: String,
     subTitle: String? = null,
-    content: @Composable ColumnScope.() -> Unit
+    content: @Composable ColumnScope.() -> Unit,
 ) {
     Column(
         verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.Top),
@@ -32,9 +32,9 @@ fun SectionContainer(
     }
 }
 
-@LightDarkPreview
+@Preview
 @Composable
-private fun PreviewSectionContainer() {
+internal fun PreviewSectionContainer() {
     SampleTheme {
         SectionContainer(title = "Environment") {
             Text(text = "Random Content")
@@ -42,9 +42,9 @@ private fun PreviewSectionContainer() {
     }
 }
 
-@LightDarkPreview
+@Preview
 @Composable
-private fun PreviewSectionContainerWithSubTitle() {
+internal fun PreviewSectionContainerWithSubTitle() {
     SampleTheme {
         SectionContainer(title = "Environment", subTitle = "api-sandbox.paydock,com") {
             Text(text = "Random Content")

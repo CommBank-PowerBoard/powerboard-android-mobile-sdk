@@ -6,8 +6,8 @@ import com.paydock.core.network.dto.error.ApiErrorResponse
 import com.paydock.core.network.dto.error.ErrorSummary
 import com.paydock.core.network.exceptions.ApiException
 import com.paydock.core.network.extensions.convertToDataClass
-import com.paydock.feature.wallet.data.api.dto.WalletCallbackRequest
-import com.paydock.feature.wallet.data.api.dto.WalletCallbackResponse
+import com.paydock.feature.wallet.data.dto.WalletCallbackRequest
+import com.paydock.feature.wallet.data.dto.WalletCallbackResponse
 import com.paydock.feature.wallet.data.mapper.asEntity
 import com.paydock.feature.wallet.domain.repository.WalletRepository
 import io.ktor.http.HttpStatusCode
@@ -20,7 +20,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
-class GetWalletCallbackUseCaseTest : BaseKoinUnitTest() {
+internal class GetWalletCallbackUseCaseTest : BaseKoinUnitTest() {
 
     private lateinit var mockRepository: WalletRepository
     private lateinit var useCase: GetWalletCallbackUseCase

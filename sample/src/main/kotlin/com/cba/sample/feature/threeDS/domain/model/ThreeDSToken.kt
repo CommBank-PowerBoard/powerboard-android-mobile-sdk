@@ -2,7 +2,8 @@ package com.cba.sample.feature.threeDS.domain.model
 
 data class ThreeDSToken(
     val token: String?,
-    val status: ThreeDSStatus?
+    val status: ThreeDSStatus?,
+    val id: String?
 ) {
     enum class ThreeDSStatus(val type: String) {
         NOT_SUPPORTED("authentication_not_supported"), PRE_AUTH_PENDING("pre_authentication_pending");
@@ -15,8 +16,6 @@ data class ThreeDSToken(
     }
 
     override fun toString(): String {
-        return "ThreeDSToken(token='$token', status=$status)"
+        return "ThreeDSToken(token=$token, status=$status, id=$id)"
     }
-
-
 }

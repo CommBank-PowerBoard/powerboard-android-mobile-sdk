@@ -2,7 +2,7 @@ package com.cba.sample.feature.wallet.data.mapper
 
 import com.cba.sample.feature.wallet.data.api.dto.WalletCaptureResponse
 import com.cba.sample.feature.wallet.data.api.dto.WalletInitiateResponse
-import com.cba.sample.feature.wallet.domain.model.WalletCharge
+import com.cba.sample.feature.wallet.data.model.WalletCharge
 
 fun WalletInitiateResponse.toDomain(): WalletCharge = WalletCharge(
     walletToken = this.resource.resourceData.token,

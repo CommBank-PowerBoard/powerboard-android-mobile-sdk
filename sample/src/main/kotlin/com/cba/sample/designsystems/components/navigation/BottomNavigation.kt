@@ -13,6 +13,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination.Companion.hierarchy
@@ -20,15 +21,13 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.cba.sample.designsystems.theme.SampleTheme
 import com.cba.sample.designsystems.theme.Theme
-import com.paydock.core.presentation.ui.preview.LightDarkPreview
 
 @Composable
 fun BottomNavigation(navController: NavController) {
     val items = listOf(
         BottomNavItem.Checkout,
         BottomNavItem.Widgets,
-        BottomNavItem.Style,
-        BottomNavItem.Settings,
+        BottomNavItem.Style
     )
 
     NavigationBar(
@@ -82,8 +81,8 @@ fun BottomNavigation(navController: NavController) {
 }
 
 @Composable
-@LightDarkPreview
-private fun PreviewBottomNavigation() {
+@Preview
+internal fun PreviewBottomNavigation() {
     SampleTheme {
         val navController = rememberNavController()
         BottomNavigation(navController)

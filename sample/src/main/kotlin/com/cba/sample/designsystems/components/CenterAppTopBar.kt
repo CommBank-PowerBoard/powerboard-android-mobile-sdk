@@ -26,6 +26,7 @@ fun CenterAppTopBar(
     title: String,
     showTitle: Boolean,
     modifier: Modifier = Modifier,
+    onActionButtonClick: (() -> Unit)? = null,
     onBackButtonClick: (() -> Unit)? = null,
 ) {
     if (showTitle) {
@@ -70,7 +71,7 @@ fun CenterAppTopBar(
                 titleContentColor = Theme.colors.onPrimaryContainer
             ),
             actions = {
-                IconButton(onClick = { /*No-Op*/ }) {
+                IconButton(onClick = { onActionButtonClick?.invoke() }) {
                     Icon(
                         imageVector = Icons.Default.Person,
                         contentDescription = "Profile",
@@ -95,7 +96,7 @@ fun CenterAppTopBar(
 
 @Composable
 @Preview
-private fun PreviewCenterAppTopBar() {
+internal fun PreviewCenterAppTopBar() {
     SampleTheme {
         CenterAppTopBar(title = "Center Top Bar", showTitle = true)
     }
@@ -103,7 +104,7 @@ private fun PreviewCenterAppTopBar() {
 
 @Composable
 @Preview
-private fun PreviewCenterAppTopBarWithoutTitle() {
+internal fun PreviewCenterAppTopBarWithoutTitle() {
     SampleTheme {
         CenterAppTopBar(title = "Center Top Bar", showTitle = false)
     }
@@ -111,7 +112,7 @@ private fun PreviewCenterAppTopBarWithoutTitle() {
 
 @Composable
 @Preview
-private fun PreviewCenterAppTopBarWithBackButton() {
+internal fun PreviewCenterAppTopBarWithBackButton() {
     SampleTheme {
         CenterAppTopBar(
             title = "Center Top Bar",
@@ -123,7 +124,7 @@ private fun PreviewCenterAppTopBarWithBackButton() {
 
 @Composable
 @Preview
-private fun PreviewCenterAppTopBarWithoutTitleWithBackButton() {
+internal fun PreviewCenterAppTopBarWithoutTitleWithBackButton() {
     SampleTheme {
         CenterAppTopBar(
             title = "Center Top Bar",

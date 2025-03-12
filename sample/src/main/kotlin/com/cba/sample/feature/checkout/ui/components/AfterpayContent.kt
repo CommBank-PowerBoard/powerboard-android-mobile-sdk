@@ -9,21 +9,21 @@ import androidx.compose.ui.unit.dp
 import com.cba.sample.core.AU_COUNTRY_CODE
 import com.cba.sample.core.AU_CURRENCY_CODE
 import com.cba.sample.designsystems.theme.SampleTheme
+import com.paydock.feature.afterpay.domain.model.integration.AfterpaySDKConfig
+import com.paydock.feature.afterpay.domain.model.integration.AfterpayShippingOption
+import com.paydock.feature.afterpay.domain.model.integration.AfterpayShippingOptionUpdate
 import com.paydock.feature.afterpay.presentation.AfterpayWidget
-import com.paydock.feature.afterpay.presentation.model.AfterpaySDKConfig
-import com.paydock.feature.afterpay.presentation.model.AfterpayShippingOption
-import com.paydock.feature.afterpay.presentation.model.AfterpayShippingOptionUpdate
-import com.paydock.feature.charge.domain.model.ChargeResponse
+import com.paydock.feature.wallet.domain.model.integration.ChargeResponse
 import java.util.Currency
 
 @Composable
 fun AfterpayContent(
     tokenHandler: (onTokenReceived: (String) -> Unit) -> Unit,
-    resultHandler: (Result<ChargeResponse>) -> Unit
+    resultHandler: (Result<ChargeResponse>) -> Unit,
 ) {
     val configuration = AfterpaySDKConfig(
         config = AfterpaySDKConfig.AfterpayConfiguration(
-            maximumAmount = "100",
+            maximumAmount = "0.50",
             currency = AU_CURRENCY_CODE,
             language = "en",
             country = AU_COUNTRY_CODE

@@ -5,7 +5,6 @@ import androidx.compose.ui.graphics.Color
 import com.cba.sample.designsystems.theme.typography.AcidGroteskNormal
 import com.paydock.MobileSDK
 import com.paydock.MobileSDKTheme
-import com.paydock.core.domain.model.Environment
 import dagger.hilt.android.HiltAndroidApp
 
 @HiltAndroidApp
@@ -37,19 +36,18 @@ class App : Application() {
                 ),
             ),
             dimensions = MobileSDKTheme.Dimensions.themeDimensions(
-                cornerRadius = 4,
-                shadow = 0,
+                textFieldCornerRadius = 4,
+                buttonCornerRadius = 4,
                 borderWidth = 1,
-                spacing = 10
             ),
             font = MobileSDKTheme.FontName.themeFont(
                 fonts = listOf(AcidGroteskNormal)
             )
         )
         MobileSDK.Builder()
-            .environment(Environment.STAGING)
+            .environment(BuildConfig.SDK_ENVIRONMENT)
             // Set flag for non-production builds
-            .enableTestMode(false)
+            .enableTestMode(BuildConfig.ENABLE_TEST_MODE)
             // Uncomment if wanting to use custom SDK theme
             // .applyTheme(theme)
             .build(this)

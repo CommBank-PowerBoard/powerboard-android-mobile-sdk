@@ -8,7 +8,7 @@ sealed class BottomNavItem(
     @StringRes val label: Int,
     @DrawableRes val iconOutlined: Int,
     @DrawableRes val iconFilled: Int,
-    val route: String
+    val route: String,
 ) {
     data object Checkout : BottomNavItem(
         R.string.nav_checkout,
@@ -32,11 +32,4 @@ sealed class BottomNavItem(
             R.drawable.ic_style_selected,
             "style"
         )
-
-    data object Settings : BottomNavItem(
-        R.string.nav_settings,
-        R.drawable.ic_settings,
-        R.drawable.ic_settings_selected,
-        "settings"
-    )
 }

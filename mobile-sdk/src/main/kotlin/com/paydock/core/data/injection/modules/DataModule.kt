@@ -9,8 +9,7 @@ import org.koin.dsl.module
 /**
  * Injection module responsible for handling Data layer. It will contain our data sources and networking layer.
  */
-val dataModule = module {
-    includes(networkModule)
-
+internal val dataModule = module {
+    includes(dispatchersModule, networkModule)
     singleOf(::ConnectivityManagerNetworkMonitor) { bind<NetworkMonitor>() }
 }

@@ -10,16 +10,16 @@ import io.mockk.coVerify
 import io.mockk.mockk
 import io.mockk.slot
 import kotlinx.coroutines.test.runTest
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.koin.test.inject
 import org.mockito.junit.MockitoJUnitRunner
 import kotlin.test.assertEquals
-import kotlin.test.assertTrue
 
 @RunWith(MockitoJUnitRunner::class)
-class AddressSearchViewModelTest : BaseKoinUnitTest() {
+internal class AddressSearchViewModelTest : BaseKoinUnitTest() {
 
     private lateinit var viewModel: AddressSearchViewModel
     private lateinit var geocoder: Geocoder

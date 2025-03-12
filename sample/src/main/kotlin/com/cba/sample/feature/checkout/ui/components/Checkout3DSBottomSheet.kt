@@ -6,7 +6,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import com.cba.sample.feature.checkout.StandaloneCheckoutViewModel
 import com.paydock.designsystems.components.sheet.SdkBottomSheet
-import com.paydock.feature.threeDS.presentation.ThreeDSWidget
+import com.paydock.feature.threeDS.integrated.presentation.Integrated3DSWidget
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -15,7 +15,7 @@ fun Checkout3DSBottomSheet(
     onDismissRequest: () -> Unit,
     vaultToken: String?,
     threeDSToken: String?,
-    viewModel: StandaloneCheckoutViewModel
+    viewModel: StandaloneCheckoutViewModel,
 ) {
     if (!vaultToken.isNullOrBlank() && !threeDSToken.isNullOrBlank()) {
         SdkBottomSheet(
@@ -23,10 +23,8 @@ fun Checkout3DSBottomSheet(
             bottomSheetState = bottom3DSSheetState,
             onDismissRequest = onDismissRequest
         ) {
-            ThreeDSWidget(token = threeDSToken) { result ->
-                onDismissRequest()
-                viewModel.handleThreeDSResult(
-                    vaultToken,
+            Integrated3DSWidget(token = threeDSToken) { result ->
+                viewModel.handleIntegrated3DSResult(
                     result
                 )
             }

@@ -1,61 +1,46 @@
 package com.paydock.feature.card.injection
 
-import com.paydock.BuildConfig
-import com.paydock.MobileSDK
-import com.paydock.core.data.injection.modules.dataModule
-import com.paydock.core.data.injection.modules.dispatchersModule
-import com.paydock.core.domain.injection.domainModule
-import com.paydock.core.domain.mapper.mapToSSLPin
-import com.paydock.core.network.NetworkClientBuilder
 import com.paydock.core.utils.decoder.injection.stringDecoderKoinModule
-import com.paydock.feature.card.data.repository.CardDetailsRepositoryImpl
-import com.paydock.feature.card.domain.repository.CardDetailsRepository
-import com.paydock.feature.card.domain.usecase.TokeniseCreditCardFlowUseCase
-import com.paydock.feature.card.domain.usecase.TokeniseCreditCardUseCase
-import com.paydock.feature.card.domain.usecase.TokeniseGiftCardUseCase
+import com.paydock.core.utils.reader.injection.fileReaderKoinModule
+import com.paydock.feature.card.data.repository.CardRepositoryImpl
+import com.paydock.feature.card.domain.model.integration.SupportedSchemeConfig
+import com.paydock.feature.card.domain.repository.CardRepository
+import com.paydock.feature.card.domain.usecase.CreateCardPaymentTokenFlowUseCase
+import com.paydock.feature.card.domain.usecase.CreateCardPaymentTokenUseCase
+import com.paydock.feature.card.domain.usecase.CreateGiftCardPaymentTokenUseCase
+import com.paydock.feature.card.domain.usecase.GetCardSchemasUseCase
 import com.paydock.feature.card.presentation.viewmodels.CardDetailsViewModel
 import com.paydock.feature.card.presentation.viewmodels.GiftCardViewModel
-import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.core.module.dsl.factoryOf
+import org.koin.core.module.dsl.viewModel
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
 
 /**
  * Koin module for Card-related components including repositories, use cases, and view models.
  **/
-val cardDetailsModule = module {
+internal val cardDetailsModule = module {
     // Include other necessary modules
-    includes(dispatchersModule, dataModule, domainModule, stringDecoderKoinModule)
-
-    // Provide an HTTP client for card operations using the provided engine
-    single(named("CardClient")) {
-        NetworkClientBuilder.create()
-            .setBaseUrl(MobileSDK.getInstance().baseUrl)
-            .apply {
-                if (!MobileSDK.getInstance().enableTestMode) {
-                    setSslPins(MobileSDK.getInstance().environment.mapToSSLPin())
-                }
-            }
-            .setDebug(BuildConfig.DEBUG)
-            .build()
-    }
-
-    // Provide the repository for managing card details
-    single<CardDetailsRepository> {
-        CardDetailsRepositoryImpl(dispatcher = get(named("IO")), client = get(named("CardClient")))
-    }
-
-    // Factory methods for creating instances of UseCases
-    factoryOf(::TokeniseCreditCardUseCase)
-    factoryOf(::TokeniseCreditCardFlowUseCase)
-    factoryOf(::TokeniseGiftCardUseCase)
-    factoryOf(::TokeniseGiftCardUseCase)
+    includes(stringDecoderKoinModule, fileReaderKoinModule)
 
     // Factory methods for creating instances of ViewModels with access tokens
-    viewModel { (accessToken: String) ->
-        CardDetailsViewModel(accessToken, get(), get())
+    viewModel { (accessToken: String, gatewayId: String?, schemeConfig: SupportedSchemeConfig) ->
+        CardDetailsViewModel(accessToken, gatewayId, schemeConfig, get(), get(), get())
     }
     viewModel { (accessToken: String) ->
         GiftCardViewModel(accessToken, get(), get())
     }
+
+    // Provide the repository for managing tokens
+    single<CardRepository> {
+        CardRepositoryImpl(dispatcher = get(named("IO")), client = get(), jsonReader = get())
+    }
+
+    // Token Based UseCases
+    factoryOf(::CreateCardPaymentTokenUseCase)
+    factoryOf(::CreateCardPaymentTokenFlowUseCase)
+    factoryOf(::CreateGiftCardPaymentTokenUseCase)
+
+    // Bin-Management Based UseCases
+    factoryOf(::GetCardSchemasUseCase)
 }

@@ -10,8 +10,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.cba.sample.R
 import com.cba.sample.designsystems.components.list.ListScreen
+import com.cba.sample.feature.account.ui.AccountScreen
 import com.cba.sample.feature.checkout.ui.CheckoutStandalone
-import com.cba.sample.feature.settings.ui.SettingsScreen
 import com.cba.sample.feature.style.ui.StyleScreen
 import com.cba.sample.feature.widgets.ui.WidgetInfoScreen
 import com.cba.sample.feature.widgets.ui.models.WidgetType
@@ -34,9 +34,6 @@ fun NavigationGraph(navController: NavHostController) {
         composable(BottomNavItem.Style.route) {
             StyleScreen()
         }
-        composable(BottomNavItem.Settings.route) {
-            SettingsScreen()
-        }
 
         composable(
             "widget_info/{widget_type}",
@@ -48,6 +45,10 @@ fun NavigationGraph(navController: NavHostController) {
                 WidgetInfoScreen(widgetType)
             }
         }
+
+        composable("account") {
+            AccountScreen()
+        }
     }
 }
 
@@ -56,7 +57,7 @@ fun NavBackStackEntry.getRouteTitle(context: Context): String {
         "checkout" -> context.getString(R.string.nav_checkout)
         "widgets" -> context.getString(R.string.nav_widgets)
         "style" -> context.getString(R.string.nav_style)
-        "settings" -> context.getString(R.string.nav_settings)
+        "account" -> context.getString(R.string.title_my_account)
         "widget_info/{widget_type}" -> {
             arguments?.getString("widget_type")?.let { type ->
                 val widgetType = WidgetType.valueOf(type)
@@ -72,9 +73,15 @@ fun NavBackStackEntry.showBackButton(): Boolean {
     return when (destination.route) {
         BottomNavItem.Checkout.route,
         BottomNavItem.Widgets.route,
-        BottomNavItem.Style.route,
-        BottomNavItem.Settings.route -> false
+        BottomNavItem.Style.route -> false
 
+        else -> true
+    }
+}
+
+fun NavBackStackEntry.showTitle(): Boolean {
+    return when (destination.route) {
+        BottomNavItem.Checkout.route -> false
         else -> true
     }
 }

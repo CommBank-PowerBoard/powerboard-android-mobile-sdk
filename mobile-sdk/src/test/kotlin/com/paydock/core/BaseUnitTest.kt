@@ -2,9 +2,11 @@ package com.paydock.core
 
 import android.net.Uri
 import android.util.Log
+import com.paydock.core.extensions.safeCastAs
 import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockkStatic
+import io.mockk.slot
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
@@ -34,6 +36,14 @@ abstract class BaseUnitTest : KoinTest {
         every { Log.w(any(), any<String>()) } returns 0
 
         mockkStatic(Uri::class)
+
+        // Used for JWT Helper (Token parsing)
+        mockkStatic(android.util.Base64::class)
+        val b64Encoded = slot<String>()
+        val flags = slot<Int>()
+        every { android.util.Base64.decode(capture(b64Encoded), capture(flags)) } coAnswers {
+            java.util.Base64.getDecoder().decode(this.args[0] as String)
+        }
     }
 
     @After
@@ -46,6 +56,29 @@ abstract class BaseUnitTest : KoinTest {
         return String(Files.readAllBytes(Paths.get(file)))
     }
 
+    /**
+     * FIXME Static mocking is not working in > Java 17
+     *
+     * @sample (Fix for Static Removal)
+     *
+     * var mockedBuildVersion: MockedConstruction<Build.VERSION>
+     * @BeforeTest
+     * fun setUp() {
+     *     // Mock Build.VERSION before each test
+     *     mockedBuildVersion = mockConstruction(
+     *         Build.VERSION::class.java
+     *     ) { _, _ ->
+     *         // this initializer will be called each time during mock creation
+     *         `when`(Build.VERSION.SDK_INT).thenReturn(Build.VERSION_CODES.TIRAMISU)
+     *     }
+     * }
+     *
+     * @AfterTest
+     * fun tearDown() {
+     *     // Close the mock after each test
+     *     mockedBuildVersion.close()
+     * }
+     */
     fun setStaticFieldViaReflection(field: Field, value: Any) {
         field.isAccessible = true
         getModifiersField().also {
@@ -67,10 +100,12 @@ abstract class BaseUnitTest : KoinTest {
                         Boolean::class.javaPrimitiveType
                     )
                 getDeclaredFields0.isAccessible = true
-                val fields = getDeclaredFields0.invoke(Field::class.java, false) as Array<Field>
-                for (field in fields) {
-                    if ("modifiers" == field.name) {
-                        return field
+                val fields = getDeclaredFields0.invoke(Field::class.java, false)?.safeCastAs<Array<Field>>()
+                if (!fields.isNullOrEmpty()) {
+                    for (field in fields) {
+                        if ("modifiers" == field.name) {
+                            return field
+                        }
                     }
                 }
             } catch (ex: ReflectiveOperationException) {

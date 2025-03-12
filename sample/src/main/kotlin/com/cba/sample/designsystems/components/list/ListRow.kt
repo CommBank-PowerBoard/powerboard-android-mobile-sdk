@@ -23,7 +23,7 @@ import com.cba.sample.feature.checkout.models.CheckoutType
 fun ListRow(
     title: String,
     description: String,
-    onClicked: () -> Unit
+    onClicked: () -> Unit,
 ) {
     Row(
         modifier = Modifier
@@ -45,7 +45,7 @@ fun ListRow(
 
 @Preview
 @Composable
-private fun PreviewListRow() {
+internal fun PreviewListRow() {
     SampleTheme {
         ListRow(
             title = CheckoutType.STANDALONE.displayName(),

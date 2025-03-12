@@ -31,11 +31,11 @@ import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.toRect
 import com.cba.sample.core.extensions.color
 import com.cba.sample.designsystems.theme.SampleTheme
-import com.paydock.core.presentation.ui.preview.LightDarkPreview
 import kotlinx.coroutines.launch
 import android.graphics.Color as AndroidColor
 
@@ -199,9 +199,9 @@ private fun DrawScope.drawBitmap(
     }
 }
 
-@LightDarkPreview
+@Preview
 @Composable
-private fun PreviewSatValPanel() {
+internal fun PreviewSatValPanel() {
     val color = "#3e3e9d".color
     val hsv = floatArrayOf(0f, 0f, 0f)
     AndroidColor.colorToHSV(color!!.toArgb(), hsv)

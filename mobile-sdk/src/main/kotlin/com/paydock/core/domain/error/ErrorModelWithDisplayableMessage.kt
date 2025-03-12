@@ -14,7 +14,6 @@ val ErrorModel?.displayableMessage: String
                     ErrorModel.ConnectionError.IOError -> MobileSDKConstants.Errors.IO_ERROR
                     ErrorModel.ConnectionError.Timeout -> MobileSDKConstants.Errors.SOCKET_TIMEOUT_ERROR
                     ErrorModel.ConnectionError.UnknownHost -> MobileSDKConstants.Errors.UNKNOWN_HOST_ERROR
-                    else -> MobileSDKConstants.Errors.CONNECTION_ERROR
                 }
             }
 
@@ -24,13 +23,25 @@ val ErrorModel?.displayableMessage: String
                     ?: MobileSDKConstants.Errors.CARD_ERROR
 
             is ErrorModel.GiftCardError -> exception.message ?: MobileSDKConstants.Errors.CARD_ERROR
-            is ErrorModel.ThreeDSError ->
+            is ErrorModel.Standalone3DSError ->
                 exception.message
-                    ?: MobileSDKConstants.Errors.THREE_DS_ERROR
+                    ?: MobileSDKConstants.Errors.STANDALONE_3DS_ERROR
+
+            is ErrorModel.Integrated3DSError ->
+                exception.message
+                    ?: MobileSDKConstants.Errors.INTEGRATED_3DS_ERROR
 
             is ErrorModel.PayPalError ->
                 exception.message
                     ?: MobileSDKConstants.Errors.PAY_PAL_ERROR
+
+            is ErrorModel.PayPalVaultError ->
+                exception.message
+                    ?: MobileSDKConstants.Errors.PAY_PAL_VAULT_ERROR
+
+            is ErrorModel.PayPalDataCollectorError ->
+                exception.message
+                    ?: MobileSDKConstants.Errors.PAY_PAL_DATA_COLLECTOR_ERROR
 
             is ErrorModel.ClickToPayError ->
                 exception.message

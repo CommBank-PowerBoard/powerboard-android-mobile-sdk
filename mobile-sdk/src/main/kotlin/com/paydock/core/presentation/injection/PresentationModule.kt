@@ -6,17 +6,16 @@ import com.paydock.feature.address.injection.addressDetailsModule
 import com.paydock.feature.afterpay.injection.afterPayModule
 import com.paydock.feature.card.injection.cardDetailsModule
 import com.paydock.feature.googlepay.injection.googlePayModule
-import com.paydock.feature.paypal.injection.payPalModule
+import com.paydock.feature.paypal.core.injection.payPalModule
 import com.paydock.feature.src.injection.clickToPayModule
-import com.paydock.feature.threeDS.injection.threeDSModule
-import com.paydock.feature.wallet.injection.walletModule
+import com.paydock.feature.threeDS.integrated.injection.integrated3DSModule
 import org.koin.android.ext.koin.androidApplication
 import org.koin.dsl.module
 
 /**
  * The Koin module for defining application-level dependencies.
  */
-val presentationModule = module {
+internal val presentationModule = module {
     // Define the appContext dependency
     single<Context> { androidApplication() }
     // Define the MobileSDKKoinContext dependency
@@ -25,12 +24,12 @@ val presentationModule = module {
     // Feature modules
     includes(
         cardDetailsModule,
-        threeDSModule,
+        integrated3DSModule,
         addressDetailsModule,
-        walletModule,
+        clickToPayModule,
+        // wallet modules
         googlePayModule,
         payPalModule,
-        afterPayModule,
-        clickToPayModule
+        afterPayModule
     )
 }

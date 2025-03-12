@@ -1,12 +1,12 @@
 package com.paydock.feature.wallet.domain.usecase
 
 import com.paydock.core.extensions.suspendRunCatching
-import com.paydock.feature.wallet.data.api.dto.WalletCallbackRequest
-import com.paydock.feature.wallet.domain.model.WalletCallback
+import com.paydock.feature.wallet.data.dto.WalletCallbackRequest
+import com.paydock.feature.wallet.domain.model.ui.WalletCallback
 import com.paydock.feature.wallet.domain.repository.WalletRepository
 
 /**
- * Use case for fetching wallet callback information.
+ * A use case for fetching wallet callback information.
  *
  * @param repository The repository responsible for interacting with wallet callback data.
  */

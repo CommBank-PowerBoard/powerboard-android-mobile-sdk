@@ -4,6 +4,11 @@ import com.cba.sample.core.data.api.dto.Resource
 
 data class WalletInitiateResponse(
     val error: Any,
-    val resource: Resource<WalletData>,
-    val status: Int
-)
+    val resource: Resource<WalletDTO>,
+    val status: Int,
+) {
+    data class WalletDTO(
+        val token: String,
+        val charge: WalletChargeDTO,
+    )
+}

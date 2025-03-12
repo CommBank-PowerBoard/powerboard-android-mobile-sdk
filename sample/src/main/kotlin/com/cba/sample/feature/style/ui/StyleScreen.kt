@@ -1,11 +1,12 @@
 package com.cba.sample.feature.style.ui
 
+import android.widget.Toast
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -28,7 +29,6 @@ import com.cba.sample.feature.style.ui.components.FontSection
 import com.paydock.MobileSDK
 import com.paydock.MobileSDKTheme
 import com.paydock.ThemeColors
-import com.paydock.core.presentation.ui.extensions.toast
 
 @Composable
 fun StyleScreen(isDarkMode: Boolean = isSystemInDarkTheme()) {
@@ -82,7 +82,7 @@ fun StyleScreen(isDarkMode: Boolean = isSystemInDarkTheme()) {
                     font = fontTheme
                 )
                 MobileSDK.getInstance().updateTheme(currentTheme)
-                context.toast("Sdk Theme has been updated!")
+                Toast.makeText(context, "Sdk Theme has been updated!", Toast.LENGTH_SHORT).show()
             }
         }
     ) { innerPadding ->
@@ -99,19 +99,19 @@ fun StyleScreen(isDarkMode: Boolean = isSystemInDarkTheme()) {
                     }
                 }
                 FontSection(fontTheme) { fontFamily ->
-                    fontTheme = MobileSDKTheme.FontName.themeFont().copy(fontFamily)
+                    fontTheme = MobileSDKTheme.FontName.themeFont().with(fontFamily)
                 }
                 DesignSection(dimensionsTheme) { themeDimensions ->
                     dimensionsTheme = themeDimensions
                 }
             })
     }
-    Divider(color = Theme.colors.outlineVariant)
+    HorizontalDivider(color = Theme.colors.outlineVariant)
 }
 
 @Preview
 @Composable
-private fun PreviewStyleScreen() {
+internal fun PreviewStyleScreen() {
     SampleTheme {
         StyleScreen()
     }

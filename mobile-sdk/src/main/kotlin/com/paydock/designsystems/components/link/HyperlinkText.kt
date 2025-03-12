@@ -11,18 +11,24 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
-import com.paydock.core.presentation.ui.preview.LightDarkPreview
+import androidx.compose.ui.tooling.preview.PreviewLightDark
+import com.paydock.core.MobileSDKConstants
 import com.paydock.designsystems.theme.SdkTheme
 import com.paydock.designsystems.theme.Theme
 
 /**
  * A composable that displays text as a clickable hyperlink.
  *
+ * @param enabled Controls the enabled state of this hyperlink.
  * @param text The text to be displayed as a hyperlink.
  * @param url The URL to be opened when the hyperlink is clicked.
  */
 @Composable
-internal fun HyperlinkText(text: String, url: String) {
+internal fun HyperlinkText(
+    enabled: Boolean = true,
+    text: String,
+    url: String
+) {
     val context = LocalContext.current
     val hyperlinkColor = Theme.colors.primary
     val hyperlinkStyle = SpanStyle(
@@ -42,18 +48,20 @@ internal fun HyperlinkText(text: String, url: String) {
         text = annotatedString,
         modifier = Modifier
             .clickable {
-                val uri = Uri.parse(url)
-                val intent = Intent(Intent.ACTION_VIEW, uri)
-                context.startActivity(intent)
+                if (enabled) {
+                    val uri = Uri.parse(url)
+                    val intent = Intent(Intent.ACTION_VIEW, uri)
+                    context.startActivity(intent)
+                }
             },
         style = Theme.typography.body1
     )
 }
 
-@LightDarkPreview
+@PreviewLightDark
 @Composable
-private fun PreviewHyperlinkText() {
+internal fun PreviewHyperlinkText() {
     SdkTheme {
-        HyperlinkText(text = "Privacy Policy", url = "https://paydock.com")
+        HyperlinkText(text = "Privacy Policy", url = MobileSDKConstants.DEFAULT_WEB_URL)
     }
 }

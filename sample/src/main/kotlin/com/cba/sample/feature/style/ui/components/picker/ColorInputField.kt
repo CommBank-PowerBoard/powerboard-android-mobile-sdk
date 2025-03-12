@@ -22,12 +22,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import com.cba.sample.core.extensions.color
 import com.cba.sample.core.extensions.isValidHexCode
 import com.cba.sample.core.extensions.toHexCode
 import com.cba.sample.designsystems.theme.SampleTheme
 import com.cba.sample.designsystems.theme.Theme
-import com.paydock.core.presentation.ui.preview.LightDarkPreview
 
 @Composable
 fun ColorInputField(
@@ -108,9 +108,9 @@ fun ColorInputField(
     }
 }
 
-@LightDarkPreview
+@Preview
 @Composable
-private fun PreviewColorInputField() {
+internal fun PreviewColorInputField() {
     val color = Color.Blue
     SampleTheme {
         ColorInputField(

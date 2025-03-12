@@ -26,10 +26,10 @@ class ThreeDSModule {
 
     @Singleton
     @Provides
-    fun provideThreeDSApiRepository(
+    fun provideThreeDSRepository(
         @Named("IO") dispatcher: CoroutineDispatcher,
-        cardApi: ThreeDSApi
+        threeDSApi: ThreeDSApi,
     ): ThreeDSRepository {
-        return ThreeDSRepositoryImpl(dispatcher, cardApi)
+        return ThreeDSRepositoryImpl(dispatcher, threeDSApi)
     }
 }

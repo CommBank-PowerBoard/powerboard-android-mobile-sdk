@@ -13,7 +13,7 @@ import com.cba.sample.designsystems.theme.SampleTheme
 fun ErrorDialog(
     onDismissRequest: () -> Unit,
     onConfirmation: () -> Unit,
-    dialogText: String
+    dialogText: String,
 ) {
     AlertDialog(
         title = {

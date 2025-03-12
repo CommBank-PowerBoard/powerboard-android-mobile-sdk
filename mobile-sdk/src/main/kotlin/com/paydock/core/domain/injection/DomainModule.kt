@@ -6,6 +6,6 @@ import org.koin.dsl.module
 /**
  * Injection module responsible for handling Domain layer. It will contain our repositories as well as our use cases.
  */
-val domainModule = module {
+internal val domainModule = module {
     includes(dataModule)
 }

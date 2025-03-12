@@ -4,10 +4,10 @@ import android.annotation.SuppressLint
 import android.view.ViewGroup
 import android.webkit.CookieManager
 import android.webkit.WebView
-import com.paydock.BuildConfig
+import com.paydock.MobileSDK
 
 /**
- * Extension function to set up the WebView with the necessary configurations for FlyPay's web-based operations.
+ * Extension function to set up the WebView with the necessary configurations for web-based operations.
  * This method applies various settings to ensure the WebView supports JavaScript, multiple windows,
  * and enables debugging for development builds. Additionally, it allows third-party cookies to support faster
  * checkout for returning users.
@@ -31,7 +31,7 @@ internal fun WebView.setup() {
     }
 
     // Enable debugging in development builds to assist with JavaScript debugging
-    WebView.setWebContentsDebuggingEnabled(BuildConfig.DEV_BUILD)
+    WebView.setWebContentsDebuggingEnabled(MobileSDK.getInstance().enableTestMode)
 
     // Enable third-party cookies to improve the user experience, allowing faster checkout for returning users
     CookieManager.getInstance().setAcceptThirdPartyCookies(this, true)

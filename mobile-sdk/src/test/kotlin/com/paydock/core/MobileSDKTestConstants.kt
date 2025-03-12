@@ -5,7 +5,9 @@ internal object MobileSDKTestConstants {
 
     object General {
         const val MOCK_GATEWAY_ID = "gateway_id"
+        const val MOCK_INVALID_GATEWAY_ID = "invalid_gateway_id"
         const val MOCK_ACCESS_TOKEN = "mock_access_token"
+        const val MOCK_INVALID_ACCESS_TOKEN = "invalid_access_token"
     }
 
     object Wallet {
@@ -57,6 +59,22 @@ internal object MobileSDKTestConstants {
         const val MOCK_TOKEN = "2V6045660E724300D"
     }
 
+    object PayPalVault {
+        const val MOCK_ACCESS_TOKEN =
+            "A21AAIzaP6XjWLlzu0wbGu4oifnHyCzn0j9k_lReSbNQbzF8WvoSz0xkL_SwR5YqY5GoPOsI5Zj-_nk1cBsDgx86hSX_gRguA"
+        const val MOCK_ID_TOKEN =
+            "\"eyJraWQiOiJhMDRiMjEwZDYzYjU0NWQzODEwOWUxNDM3ZjQ3ZWYxMiIsInR5cCI6IkpXVCIsImFsZyI6IkVTMjU2In0.eyJpc3M" +
+                "iOiJodHRwczovL2FwaS5zYW5kYm94LnBheXBhbC5jb20iLCJzdWIiOiJGRkREU0VYR0U3SEdVIiwiYWNyIjpbImNsaWVudCJdLCJzY29wZSI6WyJCcmFpbnR" +
+                "yZWU6VmF1bHQiXSwib3B0aW9ucyI6e30sImF6IjoiY2NnMTguc2xjIiwiZXh0ZXJuYWxfaWQiOlsiUGF5UGFsOkZGRERTRVhHRTdIR1UiLCJCcmFpbnRyZ" +
+                "WU6OW1mcWhiaGRzY2pkajZ4dCJdLCJleHAiOjE3Mjc3OTAwOTYsImlhdCI6MTcyNzc4OTE5NiwianRpIjoiVTJBQUtyODlQenMtTmcwc2lpUk5sNlNWZlp" +
+                "lSjhaanJJUzc0MnVrekRlM2lxNUhKb3BRM2lCR1J2dDFfQTlwbktmTV9QS09mMTA2MV9kaUotdTM3TGpQcnhyMmlEVHhyV0IyOVFicWR3ZWxtWFpka0pxelh" +
+                "OUFoyZXQ0c3N6REEifQ.xlq8HPsjM4hviIL7VKEZiQ3XvXR_PL2ITq6jiA-QuVaVN4lvv_lolBQzuSx18eV9UaZkzSktqo3Fne05WwylKQ\""
+        const val MOCK_SETUP_TOKEN = "XObCsxdHXe"
+        const val MOCK_CLIENT_ID = "AY-iOYV1QKAX6ZRomt-gXigd0-pToRMwdoLW4UxFSITOApI2jUa5UgM39MKC0qeip3SCbPozbAusuGO0"
+        const val MOCK_PAYMENT_TOKEN = "f6301700-dcfe-4640-aabf-eff4ee3d96a6"
+        const val MOCK_EMAIL = "test@email.com"
+    }
+
     object Afterpay {
         const val MOCK_CHECKOUT_TOKEN = "001.6i9ukio2hmngq2ddkrf0h5cdhr0ntjqoqc6h6lrc92gvdpn3"
         const val MOCK_INVALID_CHECKOUT_TOKEN = "invalid-checkout-token"
@@ -66,6 +84,9 @@ internal object MobileSDKTestConstants {
         const val MOCK_CHECKOUT_TOKEN = "6627a531c6eca636271113f7"
     }
 
+    object ThreeDS {
+        const val MOCK_CHARGE_ID = "ba7d839a-a868-4bb0-9763-015451fea9fb"
+    }
     object Jwt {
         const val MOCK_WALLET_TOKEN_PAYLOAD =
             "{\"id\":\"6627a531c89622362d486e59\",\"meta\":\"eyJtZXRhIjp7ImNoYXJnZSI6eyJpZCI6IjY2MjdhNTMxYzZlY2E2MzYyNzExMTN" +
@@ -91,7 +112,11 @@ internal object MobileSDKTestConstants {
         const val MOCK_INVALID_CARD_DETAILS_ERROR = "Invalid Transaction Details"
         const val MOCK_INVALID_GIFT_CARD_DETAILS_ERROR = "Card scheme is required"
         const val MOCK_AFTER_PAY_LOCALE_ERROR =
-            "Locale contains an unsupported country: CN. Supported countries include: AU,CA,CA,GB,NZ,US,IT,FR,ES"
+            "Locale contains an unsupported country: CN. Supported countries include: AU,CA,CA,GB,NZ,US"
         const val MOCK_AFTER_PAY_TOKEN_ERROR = "Error fetching checkout token"
+        const val MOCK_INVALID_OAUTH_TOKEN_ERROR = "Token signature verification failed"
+        const val MOCK_AUTH_TOKEN_ERROR = "Error creating session auth token"
+        const val MOCK_SETUP_TOKEN_ERROR = "Error creating setup token"
+        const val MOCK_CLIENT_ID_ERROR = "Error fetching gateway clientId setup token"
     }
 }

@@ -30,11 +30,11 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.toRect
 import com.cba.sample.core.extensions.toHSV
 import com.cba.sample.designsystems.theme.SampleTheme
-import com.paydock.core.presentation.ui.preview.LightDarkPreview
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import android.graphics.Color as AndroidColor
@@ -166,9 +166,9 @@ private fun DrawScope.drawBitmap(
     }
 }
 
-@LightDarkPreview
+@Preview
 @Composable
-private fun PreviewHueBar() {
+internal fun PreviewHueBar() {
     val color = Color.Blue
     val hue = color.toHSV()[0]
     SampleTheme {

@@ -16,7 +16,7 @@ import com.paydock.ThemeDimensions
 @Composable
 fun DesignSection(
     dimensionsTheme: ThemeDimensions,
-    onDimensionsUpdated: (ThemeDimensions) -> Unit
+    onDimensionsUpdated: (ThemeDimensions) -> Unit,
 ) {
     SectionContainer(title = stringResource(R.string.label_design)) {
         Row(
@@ -26,17 +26,17 @@ fun DesignSection(
         ) {
             NumberCounter(
                 modifier = Modifier.weight(0.5f),
-                title = stringResource(R.string.label_corner_radius),
-                value = dimensionsTheme.cornerRadius.value.toInt(),
-                onValueChange = {
-                    onDimensionsUpdated(dimensionsTheme.copy(cornerRadius = it.dp))
+                title = stringResource(R.string.label_text_corner_radius),
+                value = dimensionsTheme.textFieldCornerRadius.value.toInt(),
+                onValueChange = { newValue ->
+                    onDimensionsUpdated(dimensionsTheme.with(textFieldCornerRadius = newValue.dp))
                 })
             NumberCounter(
                 modifier = Modifier.weight(0.5f),
-                title = stringResource(R.string.label_shadow),
-                value = dimensionsTheme.shadow.value.toInt(),
-                onValueChange = {
-                    onDimensionsUpdated(dimensionsTheme.copy(shadow = it.dp))
+                title = stringResource(R.string.label_button_corner_radius),
+                value = dimensionsTheme.buttonCornerRadius.value.toInt(),
+                onValueChange = { newValue ->
+                    onDimensionsUpdated(dimensionsTheme.with(buttonCornerRadius = newValue.dp))
                 })
         }
 
@@ -49,16 +49,17 @@ fun DesignSection(
                 modifier = Modifier.weight(0.5f),
                 title = stringResource(R.string.label_border_width),
                 value = dimensionsTheme.borderWidth.value.toInt(),
-                onValueChange = {
-                    onDimensionsUpdated(dimensionsTheme.copy(borderWidth = it.dp))
+                onValueChange = { newValue ->
+                    onDimensionsUpdated(dimensionsTheme.with(borderWidth = newValue.dp))
                 })
             NumberCounter(
                 modifier = Modifier.weight(0.5f),
                 title = stringResource(R.string.label_spacing),
                 value = dimensionsTheme.spacing.value.toInt(),
-                onValueChange = {
-                    onDimensionsUpdated(dimensionsTheme.copy(spacing = it.dp))
+                onValueChange = { newValue ->
+                    onDimensionsUpdated(dimensionsTheme.with(spacing = newValue.dp))
                 })
+
         }
     }
 }
