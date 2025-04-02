@@ -57,33 +57,35 @@ internal class PayPalVaultActivity : AppCompatActivity() {
                 SideEffect {
                     if (shouldStartPayPal) {
                         // Retrieve client ID and setup token from the Intent extras
-                        val clientId = intent.getClientIdExtra()
-                        val setupToken = intent.getSetupTokenExtra()
-
-                        // If valid parameters are present, start the PayPal vault flow
-                        if (clientId != null && setupToken != null) {
-                            viewModel.initiatePayPalVault(
-                                this@PayPalVaultActivity,
-                                clientId,
-                                setupToken
-                            )
-                        } else {
-                            // Finish the activity with invalid parameters if they are null
-                            finish(CancellationStatus.INVALID_PARAMS)
-                        }
+                        val clientId = intent.getClientIdExtra() ?: ""
+                        val setupToken = intent.getSetupTokenExtra() ?: ""
+                        viewModel.initiatePayPalVault(
+                            this@PayPalVaultActivity,
+                            clientId,
+                            setupToken
+                        )
                         shouldStartPayPal = false
                     }
                 }
 
                 // Box layout to show UI based on the current vault result state
-                Box(modifier = Modifier.fillMaxSize().background(Theme.colors.background), contentAlignment = Alignment.Center) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(Theme.colors.background),
+                    contentAlignment = Alignment.Center
+                ) {
                     when (vaultResult) {
                         // Show a loader during the idle state
                         is PayPalWebVaultState.Idle -> SdkLoader()
 
                         // Handle user-initiated cancellation and finish the activity
                         is PayPalWebVaultState.Canceled -> {
-                            finish(CancellationStatus.USER_INITIATED)
+                            setResult(
+                                RESULT_CANCELED,
+                                Intent().putCancellationStatusExtra(CancellationStatus.USER_INITIATED)
+                            )
+                            finish()
                         }
 
                         // Handle failure state by extracting the error and returning a failure result
@@ -125,17 +127,5 @@ internal class PayPalVaultActivity : AppCompatActivity() {
         super.onNewIntent(newIntent)
         // Update the intent with the new data to ensure PayPalVault callbacks are triggered
         this.intent = newIntent
-    }
-
-    /**
-     * Helper function to finish the activity with a specific cancellation status.
-     *
-     * This sets the result of the activity to canceled and includes the [CancellationStatus] as part of the result.
-     *
-     * @param status The [CancellationStatus] to set as the result for the canceled activity.
-     */
-    private fun finish(status: CancellationStatus) {
-        setResult(RESULT_CANCELED, Intent().putCancellationStatusExtra(status))
-        finish()
     }
 }

@@ -11,7 +11,7 @@ import com.paydock.core.domain.error.exceptions.PayPalVaultException
 import com.paydock.core.domain.error.exceptions.SdkException
 import com.paydock.core.extensions.castAs
 import com.paydock.core.network.exceptions.ApiException
-import com.paydock.core.network.exceptions.UnknownApiException
+import com.paydock.core.network.exceptions.ApiParseException
 import kotlinx.serialization.SerializationException
 import java.io.IOException
 import java.net.SocketTimeoutException
@@ -110,7 +110,7 @@ internal fun Throwable.mapGenericExceptions(): SdkException? {
         )
 
         // Maps non-API-related `IOException` instances to a `GeneralException`.
-        !(this is ApiException || this is UnknownApiException) && this is IOException ->
+        !(this is ApiException || this is ApiParseException) && this is IOException ->
             GenericException.GeneralException(
                 MobileSDKConstants.Errors.IO_ERROR
             )
@@ -176,7 +176,7 @@ internal fun Throwable.mapPayPalVaultApiException(
             }
         }
 
-        is UnknownApiException -> PayPalVaultException.UnknownException(displayableMessage = this.errorMessage)
+        is ApiParseException -> PayPalVaultException.ParseException(displayableMessage = this.errorMessage, errorBody = this.errorBody)
 
         else -> PayPalVaultException.UnknownException(
             displayableMessage = this.message ?: MobileSDKConstants.Errors.DEFAULT_ERROR
@@ -230,7 +230,7 @@ internal fun Throwable.mapPayPalApiException(exceptionClass: KClass<out PayPalEx
             }
         }
 
-        is UnknownApiException -> PayPalException.UnknownException(displayableMessage = this.errorMessage)
+        is ApiParseException -> PayPalException.ParseException(displayableMessage = this.errorMessage, errorBody = this.errorBody)
 
         else -> PayPalException.UnknownException(
             displayableMessage = this.message ?: MobileSDKConstants.Errors.DEFAULT_ERROR
@@ -280,7 +280,7 @@ internal fun Throwable.mapGooglePayApiException(exceptionClass: KClass<out Googl
             }
         }
 
-        is UnknownApiException -> GooglePayException.UnknownException(displayableMessage = this.errorMessage)
+        is ApiParseException -> GooglePayException.ParseException(displayableMessage = this.errorMessage, errorBody = this.errorBody)
 
         else -> GooglePayException.UnknownException(
             displayableMessage = this.message ?: MobileSDKConstants.Errors.DEFAULT_ERROR
@@ -338,7 +338,7 @@ internal fun Throwable.mapCardDetailsApiException(
             }
         }
 
-        is UnknownApiException -> CardDetailsException.UnknownException(displayableMessage = this.errorMessage)
+        is ApiParseException -> CardDetailsException.ParseException(displayableMessage = this.errorMessage, errorBody = this.errorBody)
 
         else -> CardDetailsException.UnknownException(
             displayableMessage = this.message ?: MobileSDKConstants.Errors.DEFAULT_ERROR
@@ -377,9 +377,7 @@ internal fun Throwable.mapAfterpayApiException(exceptionClass: KClass<out Afterp
         }
 
         // Handle cases where the exception is of type UnknownApiException
-        is UnknownApiException -> AfterpayException.UnknownException(
-            displayableMessage = this.errorMessage
-        )
+        is ApiParseException -> AfterpayException.ParseException(displayableMessage = this.errorMessage, errorBody = this.errorBody)
 
         // Default case for any other types of exceptions
         else -> AfterpayException.UnknownException(
@@ -415,9 +413,7 @@ internal fun Throwable.mapGiftCardDetailsApiException(
             }
         }
 
-        is UnknownApiException -> GiftCardException.UnknownException(
-            displayableMessage = this.errorMessage
-        )
+        is ApiParseException -> GiftCardException.ParseException(displayableMessage = this.errorMessage, errorBody = this.errorBody)
 
         else -> GiftCardException.UnknownException(
             displayableMessage = this.message ?: MobileSDKConstants.Errors.DEFAULT_ERROR

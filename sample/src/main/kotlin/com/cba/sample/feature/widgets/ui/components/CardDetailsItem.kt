@@ -4,6 +4,8 @@ import android.content.Context
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -22,7 +24,9 @@ import com.paydock.feature.card.presentation.CardDetailsWidget
 @Composable
 fun CardDetailsItem(context: Context) {
     CardDetailsWidget(
-        modifier = Modifier.padding(16.dp),
+        modifier = Modifier
+            .padding(16.dp)
+            .verticalScroll(rememberScrollState()),
         config = CardDetailsWidgetConfig(
             accessToken = BuildConfig.WIDGET_ACCESS_TOKEN,
             gatewayId = BuildConfig.GATEWAY_ID_MPGS,
@@ -61,10 +65,8 @@ fun CardDetailsItem(context: Context) {
                 } else if (exception is CardDetailsException) {
                     val error = when (exception) {
                         is CardDetailsException.TokenisingCardException -> exception.error.displayableMessage
-                        is CardDetailsException.UnknownException -> {
-                            exception.toError().displayableMessage
-                        }
-
+                        is CardDetailsException.ParseException ->  exception.toError().displayableMessage
+                        is CardDetailsException.UnknownException -> exception.toError().displayableMessage
                     }
                     Log.d("[CardDetailsWidget]", "Failure: $error")
                     Toast.makeText(context, "Tokenised card failed! [${error}]", Toast.LENGTH_SHORT)

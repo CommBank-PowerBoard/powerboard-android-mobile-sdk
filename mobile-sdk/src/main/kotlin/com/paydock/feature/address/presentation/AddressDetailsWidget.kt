@@ -1,14 +1,10 @@
 package com.paydock.feature.address.presentation
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -21,11 +17,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import com.paydock.R
-import com.paydock.core.presentation.ui.utils.rememberImeState
 import com.paydock.designsystems.components.button.SdkButton
+import com.paydock.designsystems.components.link.LinkText
 import com.paydock.designsystems.theme.SdkTheme
 import com.paydock.designsystems.theme.Theme
 import com.paydock.feature.address.domain.mapper.integration.asEntity
@@ -48,8 +43,6 @@ fun AddressDetailsWidget(
     address: BillingAddress? = null,
     completion: (BillingAddress) -> Unit,
 ) {
-    val imeState = rememberImeState()
-    val scrollState = rememberScrollState()
     // Get the ViewModel using Koin dependency injection
     val viewModel: AddressDetailsViewModel = koinViewModel()
 
@@ -66,18 +59,11 @@ fun AddressDetailsWidget(
         address?.let(viewModel::updateDefaultAddress)
     }
 
-    LaunchedEffect(imeState) {
-        if (imeState.value) {
-            scrollState.animateScrollTo(scrollState.maxValue)
-        }
-    }
-
     SdkTheme {
         Column(
             modifier = modifier
                 .fillMaxWidth()
-                .background(Theme.colors.background)
-                .verticalScroll(rememberScrollState()),
+                .background(Theme.colors.background),
             verticalArrangement = Arrangement.spacedBy(Theme.dimensions.spacing, Alignment.Top),
             horizontalAlignment = Alignment.Start
         ) {
@@ -88,15 +74,12 @@ fun AddressDetailsWidget(
 
             // Show the "Enter Address Manually" text
             if (!isManualAddressVisible) {
-                Text(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable { isManualAddressVisible = !isManualAddressVisible }
-                        .testTag("showManualAddressButton"),
-                    style = Theme.typography.body2.copy(textDecoration = TextDecoration.Underline),
-                    text = stringResource(R.string.button_enter_address_manually),
-                    color = Theme.colors.primary
-                )
+                LinkText(
+                    modifier = Modifier.testTag("showManualAddressButton"),
+                    linkText = stringResource(R.string.button_enter_address_manually)
+                ) {
+                    isManualAddressVisible = !isManualAddressVisible
+                }
             }
 
             ManualAddressEntry(

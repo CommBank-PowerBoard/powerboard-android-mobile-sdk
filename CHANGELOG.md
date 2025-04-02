@@ -1,5 +1,24 @@
 # Changelog
 
+## [3.0.0] - 2025-04-02
+
+### Changed
+- Updated ThreeDSWidget to more specific Integrated3DS with updated event handling
+- Updated dependencies and gradle version to `8.8.2`
+- Content descriptions for implied buttons (Used by accessibility TalkBack)
+- Replaced `HyperlinkText` with `LinkText` composable
+- `PayPalDataCollectorUtil` calling function from `collectDeviceInfo()` to `collectDeviceId`
+
+### Fixed
+- SDK Theming consistency (removed scale factor, device size)
+- `LinkText` tappable area to use `minHeight = 24.dp` for better accessibility
+- `SearchTextField` structure to use column instead of dropdown for keyboard accessibility
+- Updated network version to `1.3.0` containing fix for different API error response mappings
+- Google Pay payment request to use correct gateway
+
+### Removed
+- `verticalScroll()` from `AddressDetailsWidget`
+
 ## [2.0.0] - 2025-03-12
 
 ### Added
