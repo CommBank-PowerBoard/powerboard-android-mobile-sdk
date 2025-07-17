@@ -6,11 +6,13 @@ import androidx.activity.ComponentActivity
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.cba.sample.BuildConfig
 import com.paydock.core.domain.error.displayableMessage
 import com.paydock.core.domain.error.toError
+import com.paydock.feature.src.domain.model.integration.ClickToPayWidgetConfig
 import com.paydock.feature.src.domain.model.integration.meta.ClickToPayMeta
 import com.paydock.feature.src.presentation.ClickToPayWidget
 
@@ -47,10 +49,12 @@ class ClickToPayActivity : ComponentActivity() {
 @Composable
 fun ClickToPayScreen(resultHandler: (Result<String>) -> Unit) {
     ClickToPayWidget(
-        modifier = Modifier.fillMaxWidth(),
-        accessToken = BuildConfig.WIDGET_ACCESS_TOKEN,
-        serviceId = BuildConfig.GATEWAY_ID_CLICK_TO_PAY,
-        meta = ClickToPayMeta(disableSummaryScreen = true),
+        modifier = Modifier.fillMaxWidth().safeDrawingPadding(),
+        config = ClickToPayWidgetConfig(
+            accessToken = BuildConfig.WIDGET_ACCESS_TOKEN,
+            serviceId = BuildConfig.GATEWAY_ID_CLICK_TO_PAY,
+            meta = ClickToPayMeta(disableSummaryScreen = true),
+        ),
         completion = resultHandler
     )
 }

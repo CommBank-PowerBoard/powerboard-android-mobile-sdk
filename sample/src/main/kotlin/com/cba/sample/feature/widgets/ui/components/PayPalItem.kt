@@ -16,20 +16,29 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.cba.sample.core.CHARGE_TRANSACTION_ERROR
+import com.cba.sample.feature.style.StylingViewModel
 import com.cba.sample.feature.wallet.presentation.WalletViewModel
 import com.paydock.core.domain.error.displayableMessage
 import com.paydock.core.domain.error.toError
+import com.paydock.feature.paypal.checkout.presentation.PayPalAppearanceDefaults
 import com.paydock.feature.paypal.checkout.presentation.PayPalWidget
 import com.paydock.feature.wallet.domain.model.integration.WalletType
 
 @Composable
-fun PayPalItem(context: Context, walletViewModel: WalletViewModel = hiltViewModel()) {
+fun PayPalItem(
+    context: Context,
+    walletViewModel: WalletViewModel = hiltViewModel(),
+    stylingViewModel: StylingViewModel
+) {
     val uiState by walletViewModel.stateFlow.collectAsState()
+    val paypalAppearance by stylingViewModel.paypalWidgetAppearance.collectAsState()
+    val currentOrDefaultAppearance = paypalAppearance ?: PayPalAppearanceDefaults.appearance()
     PayPalWidget(
         modifier = Modifier
             .fillMaxWidth()
             .padding(16.dp),
-        token = walletViewModel.getWalletToken(WalletType.PAY_PAL),
+        tokenRequest = walletViewModel.getWalletTokenResultCallback(WalletType.PAY_PAL),
+        appearance = currentOrDefaultAppearance
     ) { result ->
         result.onSuccess {
             Log.d("[PayPalWidget]", "Success: $it")
@@ -49,6 +58,15 @@ fun PayPalItem(context: Context, walletViewModel: WalletViewModel = hiltViewMode
         !uiState.error.isNullOrBlank() -> {
             Toast.makeText(context, uiState.error ?: CHARGE_TRANSACTION_ERROR, Toast.LENGTH_SHORT)
                 .show()
+        }
+
+        uiState.isLoading -> {
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier.fillMaxSize()
+            ) {
+                CircularProgressIndicator()
+            }
         }
     }
 }

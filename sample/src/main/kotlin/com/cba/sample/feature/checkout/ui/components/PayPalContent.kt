@@ -2,34 +2,36 @@ package com.cba.sample.feature.checkout.ui.components
 
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import com.cba.sample.designsystems.theme.SampleTheme
+import com.cba.sample.feature.style.StylingViewModel
 import com.paydock.core.presentation.util.WidgetLoadingDelegate
+import com.paydock.feature.paypal.checkout.domain.model.integration.PayPalWidgetConfig
+import com.paydock.feature.paypal.checkout.presentation.PayPalAppearanceDefaults
 import com.paydock.feature.paypal.checkout.presentation.PayPalWidget
 import com.paydock.feature.wallet.domain.model.integration.ChargeResponse
+import com.paydock.feature.wallet.domain.model.integration.WalletTokenResult
 
 @Composable
 fun PayPalContent(
+    stylingViewModel: StylingViewModel,
     enabled: Boolean = true,
-    tokenHandler: (onTokenReceived: (String) -> Unit) -> Unit,
+    tokenHandler: (onTokenReceived: (Result<WalletTokenResult>) -> Unit) -> Unit,
     loadingDelegate: WidgetLoadingDelegate? = null,
     resultHandler: (Result<ChargeResponse>) -> Unit,
 ) {
+    val paypalAppearance by stylingViewModel.paypalWidgetAppearance.collectAsState()
+    val currentOrDefaultAppearance = paypalAppearance ?: PayPalAppearanceDefaults.appearance()
     PayPalWidget(
         modifier = Modifier.fillMaxWidth(),
+        config = PayPalWidgetConfig(
+            requestShipping = false
+        ),
+        appearance = currentOrDefaultAppearance,
         enabled = enabled,
-        token = tokenHandler,
-        requestShipping = false,
+        tokenRequest = tokenHandler,
         loadingDelegate = loadingDelegate,
         completion = resultHandler
     )
-}
-
-@Composable
-@Preview
-private fun PayPalContentDefault() {
-    SampleTheme {
-        PayPalContent(true, {}, null, {})
-    }
 }

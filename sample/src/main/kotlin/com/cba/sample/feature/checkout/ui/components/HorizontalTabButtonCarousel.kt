@@ -14,7 +14,7 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import com.cba.sample.designsystems.theme.SampleTheme
 import com.cba.sample.feature.widgets.ui.models.WidgetType
@@ -79,14 +79,16 @@ fun HorizontalTabButtonCarousel(
     }
 }
 
-@Preview(showBackground = true)
+@PreviewLightDark
 @Composable
 private fun HorizontalTabButtonCarouselPreview() {
     val supportedPaymentMethods =
         listOf(
             WidgetType.CARD_DETAILS,
             WidgetType.GOOGLE_PAY,
-            WidgetType.PAY_PAL
+            WidgetType.PAY_PAL,
+            WidgetType.AFTER_PAY,
+            WidgetType.CLICK_TO_PAY,
         )
     SampleTheme {
         HorizontalTabButtonCarousel(

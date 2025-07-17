@@ -9,7 +9,7 @@ internal class TestApplication : Application() {
         super.onCreate()
         MobileSDK
             .Builder()
-            .environment(Environment.PRE_PRODUCTION)
+            .environment(Environment.SANDBOX)
             .build(this)
     }
 }

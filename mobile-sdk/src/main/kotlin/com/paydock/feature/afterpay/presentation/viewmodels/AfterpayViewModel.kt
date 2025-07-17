@@ -1,15 +1,19 @@
 package com.paydock.feature.afterpay.presentation.viewmodels
 
+import android.content.Context
+import android.content.Intent
 import com.afterpay.android.Afterpay
 import com.afterpay.android.CancellationStatus
 import com.paydock.MobileSDK
 import com.paydock.core.MobileSDKConstants
 import com.paydock.core.data.util.DispatchersProvider
 import com.paydock.core.domain.error.exceptions.AfterpayException
+import com.paydock.core.domain.error.exceptions.SdkException
 import com.paydock.core.domain.error.extensions.mapApiException
 import com.paydock.core.domain.mapper.mapToAfterpayEnv
 import com.paydock.core.utils.jwt.JwtHelper
 import com.paydock.feature.afterpay.domain.mapper.integration.mapMessage
+import com.paydock.feature.afterpay.domain.mapper.integration.mapToAfterpayV2Options
 import com.paydock.feature.afterpay.domain.mapper.integration.mapToSDKShippingOptionResult
 import com.paydock.feature.afterpay.domain.mapper.integration.mapToSDKShippingOptionUpdateResult
 import com.paydock.feature.afterpay.domain.model.integration.AfterpaySDKConfig
@@ -21,7 +25,7 @@ import com.paydock.feature.wallet.data.dto.CustomerData
 import com.paydock.feature.wallet.data.dto.PaymentSourceData
 import com.paydock.feature.wallet.data.dto.WalletCallbackRequest
 import com.paydock.feature.wallet.domain.model.integration.ChargeResponse
-import com.paydock.feature.wallet.domain.model.integration.WalletType
+import com.paydock.feature.wallet.domain.model.integration.WalletTokenResult
 import com.paydock.feature.wallet.domain.model.ui.WalletCallback
 import com.paydock.feature.wallet.domain.usecase.CaptureWalletChargeUseCase
 import com.paydock.feature.wallet.domain.usecase.DeclineWalletChargeUseCase
@@ -69,6 +73,7 @@ internal class AfterpayViewModel(
     private var walletToken: String? = null
     private var checkoutToken: String? = null
     private val _isConfigured = MutableStateFlow(false)
+    private var primaryErrorToReport: SdkException? = null
     //endregion
 
     //region Public Properties
@@ -126,12 +131,18 @@ internal class AfterpayViewModel(
                     updateUiState(AfterpayUIState.ProvideCheckoutTokenResult(tokenResult))
                 } ?: updateUiState(
                     AfterpayUIState.Error(
-                        AfterpayException.TokenException(MobileSDKConstants.Errors.AFTER_PAY_CALLBACK_ERROR)
+                        AfterpayException.TokenException(MobileSDKConstants.AfterpayConfig.Errors.CALLBACK_ERROR)
                     )
                 )
             },
             onFailure = { throwable ->
-                updateUiState(AfterpayUIState.Error(throwable.mapApiException(AfterpayException.FetchingUrlException::class)))
+                updateUiState(
+                    AfterpayUIState.PendingDeclineOnError(
+                        throwable.mapApiException(
+                            AfterpayException.FetchingUrlException::class
+                        )
+                    )
+                )
             }
         )
     }
@@ -139,14 +150,35 @@ internal class AfterpayViewModel(
     /**
      * Updates the UI state based on the result of a wallet charge operation.
      *
-     * @param result The result of the charge operation.
+     * This method handles the response from a charge attempt and updates the UI accordingly.
+     * If a `primaryErrorToReport` (e.g., from a prior cancellation or error) is present and the charge status is "failed",
+     * the `primaryErrorToReport` takes precedence.
+     * Otherwise, a "failed" charge status is treated as a successful operation from the SDK's perspective,
+     * as the charge attempt itself was completed, even if the payment was declined by the provider.
+     * Any other failure during the charge operation will result in an error state.
+     *
+     * @param result The [Result] of the charge operation, containing either a [ChargeResponse] on success or an error on failure.
      */
     override fun updateChargeUIState(result: Result<ChargeResponse>) {
+        val originalPendingError = primaryErrorToReport
+        // Consume the primary error once we've decided how to use it
+        primaryErrorToReport = null
         result.fold(
             onSuccess = { chargeData ->
-                updateUiState(AfterpayUIState.Success(chargeData))
+                val chargeStatus = chargeData.resource.data?.status
+                when {
+                    chargeStatus == "failed" && originalPendingError != null -> {
+                        updateUiState(AfterpayUIState.Error(originalPendingError))
+                    }
+
+                    else -> {
+                        // Charge was complete
+                        updateUiState(AfterpayUIState.Success(chargeData))
+                    }
+                }
             },
             onFailure = { throwable ->
+                // Any failure will take precedence over any pending error
                 updateUiState(AfterpayUIState.Error(throwable.mapApiException(AfterpayException.CapturingChargeException::class)))
             }
         )
@@ -154,6 +186,58 @@ internal class AfterpayViewModel(
     //endregion
 
     //region Public Methods
+
+    /**
+     * Starts the Afterpay payment flow by requesting a token and launching the Afterpay checkout intent.
+     *
+     * This function coordinates the Afterpay payment process by first obtaining a wallet token
+     * via the provided `tokenProvider`. Once the token is received, it updates the internal
+     * wallet token and then transitions the UI state to launch the Afterpay checkout intent,
+     * which is created using the provided `context` and `config`.
+     *
+     * @param tokenProvider A suspend function that takes a callback `(Result<WalletTokenResult>) -> Unit`
+     * and provides the wallet token to it.
+     * This allows for asynchronous fetching of the token.
+     * @param context The Android [Context] required to create the Afterpay checkout intent.
+     * @param config The [AfterpaySDKConfig] containing the necessary configuration for the Afterpay SDK.
+     */
+    fun startAfterpayFlow(
+        tokenProvider: (tokenResult: (Result<WalletTokenResult>) -> Unit) -> Unit,
+        context: Context,
+        config: AfterpaySDKConfig
+    ) {
+        setLoadingState()
+        val checkoutIntent = createCheckoutIntent(context, config)
+        tokenProvider.invoke { tokenResult ->
+            tokenResult.onSuccess { result ->
+                setWalletToken(result.token)
+                updateUiState(AfterpayUIState.LaunchIntent(checkoutIntent))
+            }.onFailure { throwable ->
+                updateUiState(
+                    AfterpayUIState.PendingDeclineOnError(
+                        AfterpayException.InitialisationWalletTokenException(
+                            throwable.message ?: MobileSDKConstants.AfterpayConfig.Errors.WALLET_TOKEN_ERROR
+                        )
+                    )
+                )
+            }
+        }
+    }
+    //endregion
+
+    //region Public Methods
+    /**
+     * Creates an intent for the Afterpay checkout process.
+     *
+     * @param context The context to create the intent.
+     * @param config The configuration for the Afterpay SDK.
+     * @return The `Intent` to launch the Afterpay checkout activity.
+     */
+    private fun createCheckoutIntent(context: Context, config: AfterpaySDKConfig): Intent =
+        config.options?.let {
+            Afterpay.createCheckoutV2Intent(context, it.mapToAfterpayV2Options())
+        } ?: Afterpay.createCheckoutV2Intent(context)
+
     /**
      * Updates the state to reflect a cancellation event with the given status.
      *
@@ -164,7 +248,13 @@ internal class AfterpayViewModel(
      * @param status The cancellation status received from the Afterpay SDK.
      */
     fun updateCancellationState(status: CancellationStatus) {
-        updateUiState(AfterpayUIState.Error(AfterpayException.CancellationException(status.mapMessage())))
+        updateUiState(
+            AfterpayUIState.PendingDeclineOnError(
+                AfterpayException.CancellationException(
+                    status.mapMessage()
+                )
+            )
+        )
     }
 
     /**
@@ -172,15 +262,25 @@ internal class AfterpayViewModel(
      *
      * This method retrieves the wallet token and charge ID associated with the current
      * transaction and invokes the decline process if both values are valid and non-blank.
+     * If either the wallet token or the charge ID is unavailable, it updates the UI state
+     * with the `pendingFailureException` to ensure the primary error is reported.
+     * The `pendingFailureException` is stored as the `primaryErrorToReport` if the decline
+     * process is initiated.
      *
-     * If either the wallet token or the charge ID is unavailable, the method does nothing.
+     * @param pendingFailureException The SDK exception that triggered the need to decline,
+     *                               or that should be reported if decline is not possible.
      */
-    fun declineWalletTransaction() {
+    fun declineWalletTransaction(pendingFailureException: SdkException) {
         val token = walletToken
         val chargeId = walletToken?.let { JwtHelper.getChargeIdToken(it) }
 
-        if (token.isNullOrBlank() || chargeId.isNullOrBlank()) return
-
+        if (token.isNullOrBlank() || chargeId.isNullOrBlank()) {
+            // If we can't decline, and we have a primary error, we should ensure it's still reported.
+            // If updateUiState hasn't been called with it yet or was loading
+            updateUiState(AfterpayUIState.Error(pendingFailureException))
+            return
+        }
+        primaryErrorToReport = pendingFailureException
         declineWalletTransaction(token, chargeId)
     }
 
@@ -220,7 +320,7 @@ internal class AfterpayViewModel(
                 val errorMessage = e.message
                     ?: "Afterpay: unsupported country: ${Locale.getDefault().displayCountry}"
                 updateUiState(
-                    AfterpayUIState.Error(
+                    AfterpayUIState.PendingDeclineOnError(
                         AfterpayException.ConfigurationException(errorMessage)
                     )
                 )
@@ -233,8 +333,7 @@ internal class AfterpayViewModel(
      */
     fun loadCheckoutToken() {
         val request = WalletCallbackRequest(
-            type = MobileSDKConstants.WalletCallbackType.TYPE_CREATE_SESSION,
-            walletType = WalletType.AFTER_PAY.type
+            type = MobileSDKConstants.WalletCallbackType.TYPE_CREATE_SESSION
         )
         walletToken?.let { getWalletCallback(it, request) }
     }

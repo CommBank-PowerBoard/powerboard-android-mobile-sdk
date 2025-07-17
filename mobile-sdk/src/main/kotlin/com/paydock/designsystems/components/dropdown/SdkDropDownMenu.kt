@@ -7,19 +7,22 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.Text
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.PopupProperties
-import com.paydock.core.presentation.extensions.alpha20
-import com.paydock.designsystems.theme.SdkTheme
-import com.paydock.designsystems.theme.Theme
+import com.paydock.core.presentation.ui.previews.SdkLightDarkPreviews
+import com.paydock.designsystems.components.text.SdkText
 
 /**
  * Composable function to display a dropdown menu with a list of selectable items.
@@ -39,46 +42,46 @@ internal fun <String : Any> SdkDropDownMenu(
     expanded: Boolean,
     itemWidth: Dp,
     items: List<String>,
+    selectedIndex: Int,
     dismissOnClickOutside: Boolean = true,
     isClickEnabled: Boolean = true,
     onItemSelected: (String) -> Unit,
     onDismissed: () -> Unit
 ) {
-    // Box composable to contain the dropdown menu
+    val dropDownFocusRequester = remember { FocusRequester() }
+
+    if (expanded) {
+        LaunchedEffect(Unit) {
+            dropDownFocusRequester.requestFocus() // Automatically focus dropdown when opened
+        }
+    }
+
     Box(
         modifier = Modifier
             .width(itemWidth)
             .wrapContentSize(Alignment.TopStart)
+            .focusRequester(dropDownFocusRequester)
     ) {
-        // Dropdown menu content
         DropdownMenu(
-            modifier = modifier
-                .background(Theme.colors.primary.alpha20)
-                .testTag("sdkDropDownMenu"),
-            properties = PopupProperties(
-                dismissOnClickOutside = dismissOnClickOutside
-            ),
+            modifier = modifier.testTag("sdkDropDownMenu"),
+            properties = PopupProperties(dismissOnClickOutside = dismissOnClickOutside),
             expanded = expanded,
-            onDismissRequest = {
-                onDismissed()
-            },
+            onDismissRequest = { onDismissed() }
         ) {
-            // Iterate through each item in the list and create a dropdown menu item
-            items.forEach { item: String ->
+            items.forEachIndexed { index, item: String ->
+                val isSelected = index == selectedIndex
                 DropdownMenuItem(
-                    modifier = Modifier.width(itemWidth),
+                    modifier = Modifier
+                        .width(itemWidth)
+                        .background(if (isSelected) MaterialTheme.colorScheme.primary else Color.Unspecified),
                     text = {
-                        // Display the text of the dropdown menu item
-                        Text(
+                        SdkText(
                             modifier = Modifier.fillMaxWidth(),
-                            text = AnnotatedString(text = item.toString()),
-                            style = Theme.typography.body1,
-                            color = Theme.colors.onSurface
+                            text = AnnotatedString(text = item.toString())
                         )
                     },
                     enabled = isClickEnabled,
                     onClick = {
-                        // Handle item selection
                         onItemSelected(item)
                     }
                 )
@@ -90,17 +93,18 @@ internal fun <String : Any> SdkDropDownMenu(
 /**
  * Composable function to preview the expanded state of the SdkDropDownMenu.
  */
-@PreviewLightDark
+@SdkLightDarkPreviews
 @Composable
 internal fun PreviewSdkDropDownMenuExpanded() {
-    // Preview SdkDropDownMenu in the expanded state
-    SdkTheme {
+    MaterialTheme {
+        // Preview SdkDropDownMenu in the expanded state
         SdkDropDownMenu(
             expanded = true,
             itemWidth = 300.dp,
             items = listOf("Item 1", "Item 2", "Item 3"),
             onItemSelected = {},
-            onDismissed = {}
+            onDismissed = {},
+            selectedIndex = 0
         )
     }
 }

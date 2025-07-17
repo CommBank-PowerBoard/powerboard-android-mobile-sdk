@@ -137,7 +137,7 @@ fun <T, E : Throwable> Result<T>.getOrThrow(exceptionClass: KClass<E>): T {
  * val result = {
  * // Some code that might throw exceptions
  *    throw RuntimeException("Unexpected error")
- * }.multiCatch(IllegalArgumentException: : class,  IllegalStateException: : class)  {
+ * }.multiCatch(IllegalArgumentException:: class,  IllegalStateException:: class)  {
  *    // Code to execute if IllegalArgumentException or IllegalStateException is thrown
  *    println("Caught a specified exception")
  *    "Fallback Result"

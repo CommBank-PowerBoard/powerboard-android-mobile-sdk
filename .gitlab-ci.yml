@@ -30,8 +30,11 @@ variables:
 # Jobs in subsequent stages run after the previous stage has completed successfully.
 stages:
   - quality # Stage for code quality checks (e.g., linting, static analysis).
-  - build # Stage for building the Android application.
+  - code_quality # Stage for linting the codebase using detekt
+  - versioning # Stage for incrementing version code for new builds.
   - test # Stage for running unit and integration tests.
+  - build # Stage for building the Android application.
+  - deploy # Stage for deploying build to Firebase App Distribution.
   - tag # Stage for tagging a release.
   - gitlab_release # Stage for creating a release in GitLab.
   - github_release # Stage for creating a release in GitHub.
@@ -53,10 +56,58 @@ include:
     paths:
       - vendor/bundle # Caches the Ruby dependencies to speed up subsequent runs.
   before_script:
-    - gem install bundler -v 1.17.2 # Installs a specific version of Bundler.
-    - bundle update # Updates the Ruby dependencies.
+    - chmod +x scripts/setup_bundler.sh # Ensure it is executable in CI
+    - scripts/setup_bundler.sh # Run the script
   script:
     - bundle --version # Checks the version of Bundler.
+
+# linting:
+# This job runs linting checks on the codebase using detekt.
+# It extends the '.setup_bundler' template to ensure the Ruby dependencies are set up.
+code_quality:
+  stage: code_quality # Runs in the 'code_quality' stage.
+  extends: .setup_bundler # Inherits configurations (like Bundler setup) from the '.setup_bundler' template.
+  script:
+    - bundle exec fastlane code_quality # Executes the 'formatting, style, issues' lane in Fastlane.
+  rules:
+    - if: $CI_COMMIT_BRANCH  # Run on all branch pushes
+      when: on_success
+    - if: $CI_MERGE_REQUEST_IID # Run on merge (Merge Results)
+      when: on_success
+
+## test: (All flavors are the same)
+## This job runs the unit tests for the various flavors of the Android application.
+test:
+  stage: test # Runs in the 'test' stage.
+  extends: .setup_bundler # Extends the '.setup_bundler' template.
+  script:
+    - bundle exec fastlane test flavor:staging build_type:Debug
+  environment:
+    name: staging # Sets the environment name to 'staging'.
+  artifacts:
+    expire_in: 7 days
+    when: always # Always creates artifacts, even if the job fails.
+    reports:
+      junit: mobile-sdk/build/test-results/testDebugUnitTest/TEST-*.xml # Publishes the JUnit test reports.
+  rules:
+    - when: on_success # Only run when the previous job in the pipeline has succeeded.
+
+# increment_version:
+# This job increments the version code for the build and deployment.
+increment_version:
+  stage: versioning # Specifies that this job runs in the '.pre' stage, which should be defined before other stages.
+  extends: .setup_bundler # Inherits configurations (like Bundler setup) from the '.setup_bundler' template.
+  rules: # Defines conditions for when this job should be executed.
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH # Checks if the current branch is the default branch (e.g., 'main').
+      when: on_success # Specifies that the job runs automatically when a pipeline successfully reaches this stage.
+      # This condition ensures the job runs only when changes are merged into the default branch.
+  script: # Defines the commands to run when the job is executed.
+    - bundle exec fastlane update_version_code # Executes the 'update_version_code' lane in Fastlane.
+    # This lane is responsible for:
+    #   1. Reading the current version number from GitLab CI variables (VERSION_NAME, VERSION_CODE).
+    #   2. Incrementing the version number and version code.
+    #   3. Updating the GitLab CI variables with the new versions.
+    #   4. Updating the version number in the 'build.gradle.kts' file.
 
 # pull_bin_file:
 # This job pulls a zip file from an AWS S3 bucket and extracts its contents.
@@ -69,6 +120,13 @@ pull_bin_file:
   artifacts:
     paths:
       - bin_schema/ # Makes the 'bin_schema/' directory available as an artifact for subsequent jobs.
+  rules:
+    #    - if: $CI_COMMIT_BRANCH  # Run on all branch pushes
+    #      when: on_success
+    - if: $CI_MERGE_REQUEST_IID # Run on merge (Merge Results)
+      when: on_success
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH # Run on merge to main
+      when: on_success
 
 # .build_template:
 # This is a hidden job template for building the Android application.
@@ -79,93 +137,160 @@ pull_bin_file:
   script:
     - cp bin_schema/card-schemes.json ./mobile-sdk/src/main/assets/card_schemas.json # Copies the card schemes file to the assets directory.
   artifacts:
+    expire_in: 7 days
     paths:
       - sample/build/outputs/apk/* # Makes the APK files available as artifacts.
       - bin_schema/ # Makes the 'bin_schema/' directory available as an artifact.
-  needs: ["pull_bin_file"] # This job depends on the 'pull_bin_file' job.
   dependencies:
-    - pull_bin_file # Specifies the dependency on the 'pull_bin_file' job.
+    - pull_bin_file # Specifies the dependency on the 'pull_bin_file' job
 
 # buildStaging:
 # This job builds the staging version of the Android application.
-buildStaging:
+build_staging:
   extends: .build_template # Extends the '.build_template' template.
   script:
-    - bundle exec fastlane buildStaging # Executes the 'buildStaging' lane in the Fastfile.
+    - bundle exec fastlane buildDebug flavor:staging # Executes the 'build' lane using staging flavor in the Fastfile.
     # Fastfile Reference: This lane is defined in the Fastfile and handles the actual build process.
   environment:
     name: staging
+  needs: [pull_bin_file]
   rules:
-    - if: $CI_COMMIT_BRANCH # Run on all branches
+    #    - if: $CI_COMMIT_BRANCH  # Run on all branch pushes
+    #      when: on_success
+    - if: $CI_MERGE_REQUEST_IID # Run on merge (Merge Results)
+      when: on_success
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH # Run on merge to main
+      when: on_success
 
 # buildPreProd:
-# This job builds the sandbox version of the Android application.
-buildPreProd:
+# This job builds the preprod version of the Android application.
+build_preprod:
   extends: .build_template # Extends the '.build_template' template.
   script:
-    - bundle exec fastlane buildPreProd # Executes the 'buildPreProd' lane in the Fastfile.
+    - bundle exec fastlane buildDebug flavor:preprod # Executes the 'build' lane using preprod flavor in the Fastfile.
     # Fastfile Reference: This lane is defined in the Fastfile and handles the actual build process.
   environment:
     name: pre-production
+  needs: [ code_quality, pull_bin_file, increment_version ]
   rules:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH # Run automatically on merge to main
       when: on_success
 
 # buildProd:
 # This job builds the production version of the Android application.
-buildProd:
+build_prod:
   extends: .build_template # Extends the '.build_template' template.
   script:
-    - bundle exec fastlane buildProd # Executes the 'buildProd' lane in the Fastfile.
+    - bundle exec fastlane buildDebug flavor:prod # Executes the 'build' lane using prod flavor in the Fastfile.
     # Fastfile Reference: This lane is defined in the Fastfile and handles the actual build process.
   environment:
     name: production
+  needs: [pull_bin_file, increment_version]
   rules:
-    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH # Run automatically on merge to main
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH # Run on merge to main
       when: on_success
 
-# test:
-# This job runs the unit tests for the Android application.
-test:
-  stage: test # Runs in the 'test' stage.
-  extends: .setup_bundler # Extends the '.setup_bundler' template.
+# .deploy_template:
+# This is a hidden job template for deploying the Android application to Firebase App Distribution.
+# This template handles the setup of the Bundler and Google Cloud credentials required for the pipeline and Firebase interaction.
+.deploy_template:
+  stage: deploy # Runs in the 'deploy' stage.
+  cache:
+    paths:
+      - vendor/bundle # Caches the Ruby dependencies to speed up subsequent runs.
+  variables:
+    # Inherit from global variables
+    GOOGLE_APPLICATION_CREDENTIALS_BASE64: $GOOGLE_APPLICATION_CREDENTIALS_BASE64
+  before_script:
+    # Set up the Bundler environment
+    - chmod +x scripts/setup_bundler.sh # Ensure it is executable in CI
+    - scripts/setup_bundler.sh # Run the script
+    # Decode the base64 encoded Google Cloud credentials and save them to a file.
+    - echo ${GOOGLE_APPLICATION_CREDENTIALS_BASE64} | base64 -d > private-key.json
+    # Get the absolute path of the credentials file.
+    - FILE_LOCATION=$(realpath private-key.json)
+    - echo $FILE_LOCATION
+    # Set the GOOGLE_CREDENTIALS_FILE_PATH environment variable for use by Fastlane.
+    - export GOOGLE_CREDENTIALS_FILE_PATH=$FILE_LOCATION # Set the environment variable
+
+# deployStaging:
+# This job deploys the staging version of the Android application to Firebase App Distribution.
+# It extends the '.deploy_template' to inherit the necessary setup and configuration.
+deploy_staging:
+  extends: .deploy_template # Inherits configuration from the .deploy_template template.
+  variables:
+    APP_ID: $FIREBASE_APP_ID_STAGING # Firebase App ID for the staging environment.
+  environment:
+    name: staging # Sets the environment name to 'staging'.
+  needs:
+    - job: build_staging
   script:
-    - bundle exec fastlane test # Executes the 'test' lane in the Fastfile.
-    # Fastfile Reference: This lane is defined in the Fastfile and handles the test execution.
-  artifacts:
-    when: always # Always creates artifacts, even if the job fails.
-    reports:
-      junit: mobile-sdk/build/test-results/testDebugUnitTest/TEST-*.xml # Publishes the JUnit test reports.
+    - bundle exec fastlane deploy flavor:staging # Executes the 'deploy' lane using staging flavor in the Fastfile.
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH # Run on merge to main
+      when: on_success
+
+# deployPreProd:
+# This job deploys the preprod version of the Android application to Firebase App Distribution.
+# It extends the '.deploy_template' to inherit the necessary setup and configuration.
+deploy_preprod:
+  extends: .deploy_template # Inherits configuration from the .deploy_template template.
+  variables:
+    APP_ID: $FIREBASE_APP_ID_PREPROD # Firebase App ID for the preprod environment.
+  environment:
+    name: pre-production # Sets the environment name to 'pre-production'.
+  needs:
+    - job: build_preprod
+  script:
+    - bundle exec fastlane deploy flavor:preprod # Executes the 'deploy' lane using preprod flavor in the Fastfile.
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH # Run on merge to main
+      when: on_success
+
+# deployProd:
+# This job deploys the production version of the Android application to Firebase App Distribution.
+# It extends the '.deploy_template' to inherit the necessary setup and configuration.
+deploy_prod:
+  extends: .deploy_template # Inherits configuration from the .deploy_template template.
+  variables:
+    APP_ID: $FIREBASE_APP_ID_PROD # Firebase App ID for the production environment.
+  environment:
+    name: production # Sets the environment name to 'production'.
+  needs:
+    - job: build_prod
+  script:
+    - bundle exec fastlane deploy flavor:prod # Executes the 'deploy' lane using prod flavor in the Fastfile.
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH # Run on merge to main
+      when: on_success
 
 # tag_release:
 # This job tags a release in the repository.
 tag_release:
   stage: tag # Runs in the 'tag' stage.
   extends: .setup_bundler # Extends the '.setup_bundler' template.
-  only:
-    - release # Only runs when a commit is made to the 'release' branch.
   script:
     - bundle exec fastlane tag_release # Executes the 'tag_release' lane in the Fastfile.
     # Fastfile Reference: This lane is defined in the Fastfile and handles the tagging process.
+  rules:
+    - if: $CI_COMMIT_BRANCH == "release" # Run on commit is made to the 'release' branch.
+      when: on_success
 
 # create_gitlab_release:
 # This job creates a release in GitLab.
 create_gitlab_release:
   stage: gitlab_release # Runs in the 'gitlab_release' stage.
-  image: registry.gitlab.com/gitlab-org/release-cli:latest # Uses the GitLab release CLI image.
-  rules:
-    - if: '$CI_COMMIT_TAG && $CI_COMMIT_REF_NAME == "release"' # Only runs if a tag is created on the 'release' branch.
+  extends: .setup_bundler # Extends the '.setup_bundler' template to set up the Ruby environment.
   script:
-    - echo "running release_job for $TAG" # Prints a message to the console.
-  release:
-    name: 'Release: v${CI_COMMIT_TAG}' # Sets the release name.
-    description: '$CI_COMMIT_TAG' # Sets the release description.
-    tag_name: '$CI_COMMIT_TAG' # Sets the tag name.
-    ref: '$CI_COMMIT_SHA' # Sets the reference commit.
-    assets:
-      links:
-        - name: 'MobileSDK Documentation' # Creates a link to the MobileSDK documentation.
-          url: 'https://github.com/PayDock/mobile-sdk-doc/tree/main'
+    - bundle exec fastlane create_gitlab_release version:$CI_COMMIT_TAG # Executes the 'create_gitlab_release' lane in the Fastfile.
+    # Fastfile Reference: This lane is defined in the Fastfile and handles the following:
+    #   - Authenticating with GitHub using a personal access token.
+    #   - Creating a new release on Gitlab with the specified tag name.
+    #   - Adding release notes or a description to the release.
+    #   - Potentially uploading release assets (e.g., APKs) to the release.
+  rules:
+    - if: $CI_COMMIT_BRANCH == "release" # Run on commit is made to the 'release' branch.
+      when: on_success
 
 # create_github_release:
 # This job creates a release in GitHub.
@@ -174,15 +299,16 @@ create_gitlab_release:
 create_github_release:
   stage: github_release # Runs in the 'github_release' stage.
   extends: .setup_bundler # Extends the '.setup_bundler' template to set up the Ruby environment.
-  only:
-    - release # Only runs when a commit is made to the 'release' branch.
   script:
-    - bundle exec fastlane create_github_release # Executes the 'create_github_release' lane in the Fastfile.
+    - bundle exec fastlane create_github_release$CI_COMMIT_TAG # Executes the 'create_github_release' lane in the Fastfile.
     # Fastfile Reference: This lane is defined in the Fastfile and handles the following:
     #   - Authenticating with GitHub using a personal access token.
     #   - Creating a new release on GitHub with the specified tag name.
     #   - Adding release notes or a description to the release.
     #   - Potentially uploading release assets (e.g., APKs) to the release.
+  rules:
+    - if: $CI_COMMIT_BRANCH == "release" # Run on commit is made to the 'release' branch.
+      when: on_success
 
 # publish_to_github:
 # This job publishes the built SDK to GitHub.
@@ -191,11 +317,12 @@ create_github_release:
 publish_to_github:
   stage: publish # Runs in the 'publish' stage.
   extends: .setup_bundler # Extends the '.setup_bundler' template to set up the Ruby environment.
-  only:
-    - release # Only runs when a commit is made to the 'release' branch.
   script:
     - bundle exec fastlane publish_to_github # Executes the 'publish_to_github' lane in the Fastfile.
     # Fastfile Reference: This lane is defined in the Fastfile and handles the following:
     #   - Authenticating with GitHub using a personal access token.
     #   - Uploading the built SDK (e.g., AAR file) as a release asset to the GitHub release.
     #   - Potentially updating the release notes or description.
+  rules:
+    - if: $CI_COMMIT_BRANCH == "release" # Run on commit is made to the 'release' branch.
+      when: on_success

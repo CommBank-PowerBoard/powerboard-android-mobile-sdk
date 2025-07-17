@@ -19,7 +19,6 @@ import com.cba.sample.core.AMOUNT
 import com.cba.sample.core.AU_COUNTRY_CODE
 import com.cba.sample.core.AU_CURRENCY_CODE
 import com.cba.sample.designsystems.components.button.AppButton
-import com.cba.sample.designsystems.theme.Theme
 import java.math.BigDecimal
 import java.text.NumberFormat
 import java.util.Currency
@@ -33,7 +32,7 @@ fun CheckoutBaseScreen(onCheckoutButtonClick: () -> Unit) {
     val formattedProductAmount = formatCurrency(productAmount)
 
     Column {
-        HorizontalDivider(color = Theme.colors.outlineVariant)
+        HorizontalDivider()
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -60,15 +59,15 @@ fun CheckoutBaseScreen(onCheckoutButtonClick: () -> Unit) {
             Spacer(modifier = Modifier.weight(1.0f))
             TotalRowView(
                 title = "Subtotal",
-                value = formattedSubtotal,
-                color = Theme.colors.outlineVariant
+                value = formattedSubtotal
             )
-            TotalRowView(title = "Shipping", value = "Free", color = Theme.colors.outlineVariant)
-            HorizontalDivider(color = Theme.colors.outlineVariant)
+            TotalRowView(
+                title = "Shipping", value = "Free"
+            )
+            HorizontalDivider()
             TotalRowView(
                 title = "Total",
-                value = formattedSubtotal,
-                color = Theme.colors.onBackground
+                value = formattedSubtotal
             )
             AppButton(
                 modifier = Modifier.fillMaxWidth(),
@@ -84,4 +83,3 @@ fun formatCurrency(amount: Double, locale: Locale = Locale("en", AU_COUNTRY_CODE
     currencyFormatter.currency = Currency.getInstance(AU_CURRENCY_CODE)
     return currencyFormatter.format(amount)
 }
-

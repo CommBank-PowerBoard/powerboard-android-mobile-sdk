@@ -104,7 +104,7 @@ internal sealed class WidgetConfig {
 
     /**
      * `ThreeDSConfigBase` is a sealed class that serves as the base configuration for 3D Secure authentication widgets.
-     * It provides a common structure for different types of 3DS configurations, such as Integrated and Standalone.
+     * It provides a common structure for different types of 3DS configurations, such as Integrated.
      *
      * This class inherits from `WidgetConfig`, indicating that it represents the configuration for a widget.
      *

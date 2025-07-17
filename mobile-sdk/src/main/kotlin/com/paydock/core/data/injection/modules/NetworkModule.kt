@@ -2,7 +2,6 @@ package com.paydock.core.data.injection.modules
 
 import com.paydock.BuildConfig
 import com.paydock.MobileSDK
-import com.paydock.core.domain.mapper.mapToSSLPin
 import com.paydock.core.network.NetworkClientBuilder
 import org.koin.dsl.module
 
@@ -18,11 +17,6 @@ internal val networkModule = module {
     single {
         NetworkClientBuilder.create()
             .setBaseUrl(MobileSDK.getInstance().baseUrl)
-            .apply {
-                if (!MobileSDK.getInstance().enableTestMode) {
-                    setSslPins(MobileSDK.getInstance().environment.mapToSSLPin())
-                }
-            }
             .setDebug(BuildConfig.DEBUG)
             .build()
     }
