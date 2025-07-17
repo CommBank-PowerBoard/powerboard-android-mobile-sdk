@@ -16,11 +16,11 @@ internal object ClientSDKConstants {
      */
     object Library {
         internal const val PROD =
-            "https://widget.powerboard.commbank.com.au/sdk/v1.116.4/widget.umd.min.js"
+            "https://widget.powerboard.commbank.com.au/sdk/v1.121.2/widget.umd.min.js"
         internal const val PRE_PRODUCTION =
-            "https://widget.preproduction.powerboard.commbank.com.au/sdk/v1.116.4/widget.umd.min.js"
+            "https://widget.preproduction.powerboard.commbank.com.au/sdk/v1.121.2/widget.umd.min.js"
         internal const val STAGING =
-            "https://widget.staging.powerboard.commbank.com.au/sdk/v1.116.3-beta/widget.umd.min.js"
+            "https://widget.staging.powerboard.commbank.com.au/sdk/v1.121.2-beta/widget.umd.min.js"
     }
 
     /**
@@ -31,5 +31,4 @@ internal object ClientSDKConstants {
         internal const val PRE_PRODUCTION_CBA = "preproduction_cba"
         internal const val PROD_CBA = "production_cba"
     }
-
 }

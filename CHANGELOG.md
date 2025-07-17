@@ -1,5 +1,18 @@
 # Changelog
 
+## [4.0.0] - 2025-07-17
+
+### Added
+- New customisations for all Widgets with `Appearance` added to all Widget contracts
+- Material Theming inheritance
+
+### Changed
+- `Config` param standardised to all Widget contracts
+- Handling of token callback results for Wallets now within SDK processing
+
+# Fixed
+- Afterpay disabled state not working correctly
+
 ## [3.0.0] - 2025-04-02
 
 ### Changed

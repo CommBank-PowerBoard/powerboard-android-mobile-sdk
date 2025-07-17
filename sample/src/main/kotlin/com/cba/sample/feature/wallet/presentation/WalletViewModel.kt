@@ -10,6 +10,7 @@ import com.cba.sample.feature.checkout.data.api.dto.ChargesCustomerDTO
 import com.cba.sample.feature.wallet.data.api.dto.InitiateWalletRequest
 import com.cba.sample.feature.wallet.data.model.WalletCharge
 import com.cba.sample.feature.wallet.domain.usecase.InitiateWalletTransactionUseCase
+import com.paydock.feature.wallet.domain.model.integration.WalletTokenResult
 import com.paydock.feature.wallet.domain.model.integration.WalletType
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -32,24 +33,26 @@ class WalletViewModel @Inject constructor(private val initiateWalletTransactionU
         }
     }
 
-    private fun initiateWalletTransaction(
+    private fun initiateWalletTransactionResult(
         manualCapture: Boolean = false,
         request: InitiateWalletRequest,
-        callback: (String) -> Unit,
+        callback: (Result<WalletTokenResult>) -> Unit,
     ) {
         viewModelScope.launch {
-            _stateFlow.update { state ->
-                state.copy(isLoading = true)
-            }
+            // Loading is handled by the SDK
+//            _stateFlow.update { state ->
+//                state.copy(isLoading = true)
+//            }
             val result =
                 initiateWalletTransactionUseCase(manualCapture = manualCapture, request = request)
             result.onSuccess { charge ->
-                charge.walletToken?.let { callback(it) }
+                charge.walletToken?.let { callback(Result.success(WalletTokenResult(token = it))) }
                 _stateFlow.update { state ->
                     state.copy(isLoading = false, error = null, walletChargeResult = charge)
                 }
             }
             result.onFailure {
+                callback(Result.failure(it))
                 _stateFlow.update { state ->
                     state.copy(
                         walletChargeResult = null,
@@ -61,13 +64,13 @@ class WalletViewModel @Inject constructor(private val initiateWalletTransactionU
         }
     }
 
-    fun getWalletToken(walletType: WalletType): (onTokenReceived: (String) -> Unit) -> Unit =
+    fun getWalletTokenResultCallback(walletType: WalletType): (onTokenReceived: (Result<WalletTokenResult>) -> Unit) -> Unit =
         { onTokenReceived ->
             resetResultState()
             when (walletType) {
                 WalletType.AFTER_PAY -> {
                     val request = createAfterpayWalletRequest()
-                    initiateWalletTransaction(
+                    initiateWalletTransactionResult(
                         request = request,
                         callback = onTokenReceived
                     )
@@ -75,7 +78,7 @@ class WalletViewModel @Inject constructor(private val initiateWalletTransactionU
 
                 WalletType.GOOGLE -> {
                     val request = createGoogleWalletRequest()
-                    initiateWalletTransaction(
+                    initiateWalletTransactionResult(
                         request = request,
                         callback = onTokenReceived
                     )
@@ -83,7 +86,7 @@ class WalletViewModel @Inject constructor(private val initiateWalletTransactionU
 
                 WalletType.PAY_PAL -> {
                     val request = createPayPalWalletRequest()
-                    initiateWalletTransaction(
+                    initiateWalletTransactionResult(
                         request = request,
                         callback = onTokenReceived
                     )
@@ -126,7 +129,6 @@ class WalletViewModel @Inject constructor(private val initiateWalletTransactionU
                 lastName = "Cameron",
                 paymentSource = ChargesCustomerDTO.PaymentSourceDTO(
                     gatewayId = BuildConfig.GATEWAY_ID_AFTER_PAY,
-                    walletType = WalletType.AFTER_PAY.type,
                     addressLine1 = "asd1",
                     addressLine2 = "asd1",
                     addressLine3 = "asd1",
@@ -134,7 +136,8 @@ class WalletViewModel @Inject constructor(private val initiateWalletTransactionU
                     state = "state",
                     countryCode = "US",
                     postalCode = "12345",
-                )
+                    walletType = WalletType.AFTER_PAY.type
+                ),
             ),
             meta = InitiateWalletRequest.MetaDTO(
                 storeId = "1234",
@@ -143,7 +146,7 @@ class WalletViewModel @Inject constructor(private val initiateWalletTransactionU
                 errorUrl = "https://paydock-integration.netlify.app/error"
             ),
             shippingDTO = InitiateWalletRequest.ShippingDTO(),
-            itemDTOS = listOf(InitiateWalletRequest.ItemDTO())
+            itemDTOS = listOf(InitiateWalletRequest.ItemDTO()),
         )
     }
 }

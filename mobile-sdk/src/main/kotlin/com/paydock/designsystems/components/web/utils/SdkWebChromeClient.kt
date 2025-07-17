@@ -29,9 +29,9 @@ import com.paydock.designsystems.components.web.extensions.setup
 internal class SdkWebChromeClient(
     private val context: Context,
     private val onOpenWebView: (WebView) -> Unit,
-    private val onPageFinished: () -> Unit,
+    private val onPageFinished: (WebView) -> Unit,
     private val onWebViewError: (Int, String) -> Unit,
-    private val openExternalLink: (Uri) -> Unit,
+    private val openExternalLink: (Uri) -> Unit
 ) : AccompanistWebChromeClient() {
 
     companion object {
@@ -54,7 +54,6 @@ internal class SdkWebChromeClient(
         val sourceId = consoleMessage.sourceId()
         val lineNumber = consoleMessage.lineNumber()
 
-        // Handle specific message levels
         // Handle specific message levels
         return if (MobileSDK.getInstance().enableTestMode) {
             // Log the message with appropriate level and details
@@ -133,7 +132,7 @@ internal class SdkWebChromeClient(
         // Set WebViewClient to handle page load and error events.
         webView.webViewClient = SdkWebViewClient(onPageFinished = {
             webView.visibility = View.VISIBLE
-            onPageFinished()
+            onPageFinished(webView)
         }, onWebViewError = onWebViewError)
 
         // Set WebChromeClient to manage window operations.

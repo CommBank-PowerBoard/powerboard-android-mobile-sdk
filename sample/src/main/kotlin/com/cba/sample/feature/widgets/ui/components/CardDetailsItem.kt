@@ -7,9 +7,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.cba.sample.BuildConfig
+import com.cba.sample.feature.style.StylingViewModel
 import com.paydock.core.domain.error.displayableMessage
 import com.paydock.core.domain.error.exceptions.CardDetailsException
 import com.paydock.core.domain.error.exceptions.GenericException
@@ -19,10 +22,14 @@ import com.paydock.feature.card.domain.model.integration.CardDetailsWidgetConfig
 import com.paydock.feature.card.domain.model.integration.SaveCardConfig
 import com.paydock.feature.card.domain.model.integration.SupportedSchemeConfig
 import com.paydock.feature.card.domain.model.integration.enums.CardType
+import com.paydock.feature.card.presentation.CardDetailsAppearanceDefaults
 import com.paydock.feature.card.presentation.CardDetailsWidget
 
 @Composable
-fun CardDetailsItem(context: Context) {
+fun CardDetailsItem(context: Context, stylingViewModel: StylingViewModel) {
+    val cardDetailsAppearance by stylingViewModel.cardDetailsWidgetAppearance.collectAsState()
+    val currentOrDefaultAppearance =
+        cardDetailsAppearance ?: CardDetailsAppearanceDefaults.appearance()
     CardDetailsWidget(
         modifier = Modifier
             .padding(16.dp)
@@ -49,18 +56,27 @@ fun CardDetailsItem(context: Context) {
                 enableValidation = true
             )
         ),
+        appearance = currentOrDefaultAppearance,
         completion = { result ->
             // This breaks down 3 ways to retrieve and handle the result
             // Option 1: Default Result Handler
             result.onSuccess {
                 Log.d("[CardDetailsWidget]", "Success: $it")
-                Toast.makeText(context, "Tokenised card was successful! [$it]", Toast.LENGTH_SHORT)
+                Toast.makeText(
+                    context,
+                    "Tokenised card was successful! [$it]",
+                    Toast.LENGTH_SHORT
+                )
                     .show()
             }.onFailure { exception: Throwable ->
                 if (exception is GenericException) {
                     val error = exception.toError().displayableMessage
                     Log.d("[CardDetailsWidget]", "Failure: $error")
-                    Toast.makeText(context, "Tokenised card failed! [${error}]", Toast.LENGTH_SHORT)
+                    Toast.makeText(
+                        context,
+                        "Tokenised card failed! [${error}]",
+                        Toast.LENGTH_SHORT
+                    )
                         .show()
                 } else if (exception is CardDetailsException) {
                     val error = when (exception) {
@@ -69,7 +85,11 @@ fun CardDetailsItem(context: Context) {
                         is CardDetailsException.UnknownException -> exception.toError().displayableMessage
                     }
                     Log.d("[CardDetailsWidget]", "Failure: $error")
-                    Toast.makeText(context, "Tokenised card failed! [${error}]", Toast.LENGTH_SHORT)
+                    Toast.makeText(
+                        context,
+                        "Tokenised card failed! [${error}]",
+                        Toast.LENGTH_SHORT
+                    )
                         .show()
                 }
             }

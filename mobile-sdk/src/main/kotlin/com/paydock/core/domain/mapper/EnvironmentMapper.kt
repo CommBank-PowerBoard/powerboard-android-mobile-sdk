@@ -19,21 +19,6 @@ internal fun Environment.mapToBaseUrl(): String = when (this) {
 }
 
 /**
- * Extension function to map an Environment to its corresponding SSL pin sha256 string.
- *
- * This function takes an instance of the `Environment` enum and returns the
- * corresponding SSL pin string from `ClientSDKConstants.SSLPin`.
- *
- * @receiver Environment The environment for which the SSL pin string is required.
- * @return String The corresponding SSL pin string for the given environment.
- */
-fun Environment.mapToSSLPin(): List<String> = when (this) {
-    Environment.PRODUCTION -> listOf(MobileSDKConstants.Network.SSLPin.PROD)
-    Environment.PRE_PRODUCTION -> listOf(MobileSDKConstants.Network.SSLPin.PRE_PRODUCTION)
-    Environment.STAGING -> listOf(MobileSDKConstants.Network.SSLPin.STAGING)
-}
-
-/**
  * Maps the current environment to the corresponding Client SDK library url.
  *
  * @receiver Environment The environment for which the Client-SDK library url string is required.

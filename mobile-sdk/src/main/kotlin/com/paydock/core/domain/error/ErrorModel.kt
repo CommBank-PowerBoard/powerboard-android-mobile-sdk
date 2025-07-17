@@ -10,7 +10,6 @@ import com.paydock.core.domain.error.exceptions.Integrated3DSException
 import com.paydock.core.domain.error.exceptions.PayPalDataCollectorException
 import com.paydock.core.domain.error.exceptions.PayPalException
 import com.paydock.core.domain.error.exceptions.PayPalVaultException
-import com.paydock.core.domain.error.exceptions.Standalone3DSException
 
 /**
  * Represents various types of errors that can occur within the application.
@@ -45,13 +44,6 @@ sealed interface ErrorModel {
      * @property throwable The [Throwable] representing the unknown error.
      */
     data class UnknownError(val throwable: Throwable) : ErrorModel
-
-    /**
-     * 3DS Error: Represents errors specific to Standalone 3DS functionality.
-     *
-     * @property exception The [Standalone3DSException] specific to 3DS.
-     */
-    data class Standalone3DSError(val exception: Standalone3DSException) : ErrorModel
 
     /**
      * 3DS Error: Represents errors specific to Integrated 3DS functionality.

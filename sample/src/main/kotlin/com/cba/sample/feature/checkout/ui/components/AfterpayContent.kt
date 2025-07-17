@@ -3,24 +3,33 @@ package com.cba.sample.feature.checkout.ui.components
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.cba.sample.core.AU_COUNTRY_CODE
 import com.cba.sample.core.AU_CURRENCY_CODE
-import com.cba.sample.designsystems.theme.SampleTheme
+import com.cba.sample.feature.style.StylingViewModel
+import com.paydock.core.presentation.util.WidgetLoadingDelegate
 import com.paydock.feature.afterpay.domain.model.integration.AfterpaySDKConfig
 import com.paydock.feature.afterpay.domain.model.integration.AfterpayShippingOption
 import com.paydock.feature.afterpay.domain.model.integration.AfterpayShippingOptionUpdate
+import com.paydock.feature.afterpay.presentation.AfterpayAppearanceDefaults
 import com.paydock.feature.afterpay.presentation.AfterpayWidget
 import com.paydock.feature.wallet.domain.model.integration.ChargeResponse
+import com.paydock.feature.wallet.domain.model.integration.WalletTokenResult
 import java.util.Currency
 
 @Composable
 fun AfterpayContent(
-    tokenHandler: (onTokenReceived: (String) -> Unit) -> Unit,
+    stylingViewModel: StylingViewModel,
+    enabled: Boolean = true,
+    tokenHandler: (onTokenReceived: (Result<WalletTokenResult>) -> Unit) -> Unit,
+    loadingDelegate: WidgetLoadingDelegate? = null,
     resultHandler: (Result<ChargeResponse>) -> Unit,
 ) {
+    val afterpayAppearance by stylingViewModel.afterpayWidgetAppearance.collectAsState()
+    val currentOrDefaultAppearance = afterpayAppearance ?: AfterpayAppearanceDefaults.appearance()
     val configuration = AfterpaySDKConfig(
         config = AfterpaySDKConfig.AfterpayConfiguration(
             maximumAmount = "0.50",
@@ -37,8 +46,10 @@ fun AfterpayContent(
         modifier = Modifier
             .fillMaxWidth()
             .padding(16.dp),
-        token = tokenHandler,
+        enabled = enabled,
+        tokenRequest = tokenHandler,
         config = configuration,
+        appearance = currentOrDefaultAppearance,
         selectAddress = { _, provideShippingOptions ->
             val currency = Currency.getInstance(configuration.config.currency)
             val shippingOptions = listOf(
@@ -81,14 +92,7 @@ fun AfterpayContent(
                 }
             provideShippingOptionUpdateResult(result)
         },
+        loadingDelegate = loadingDelegate,
         completion = resultHandler
     )
-}
-
-@Composable
-@Preview
-private fun AfterpayContentDefault() {
-    SampleTheme {
-        AfterpayContent({}, {})
-    }
 }

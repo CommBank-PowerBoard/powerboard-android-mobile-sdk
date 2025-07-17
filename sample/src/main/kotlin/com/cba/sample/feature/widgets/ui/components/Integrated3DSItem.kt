@@ -16,16 +16,20 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.cba.sample.core.THREE_DS_CARD_ERROR
 import com.cba.sample.core.TOKENISE_CARD_ERROR
 import com.cba.sample.feature.card.CardViewModel
+import com.cba.sample.feature.style.StylingViewModel
 import com.cba.sample.feature.threeDS.presentation.ThreeDSViewModel
 import com.paydock.core.domain.error.displayableMessage
 import com.paydock.core.domain.error.toError
+import com.paydock.feature.threeDS.common.domain.integration.ThreeDSConfig
+import com.paydock.feature.threeDS.common.presentation.ui.ThreeDSAppearanceDefaults
 import com.paydock.feature.threeDS.integrated.presentation.Integrated3DSWidget
 
 @Composable
-fun IntegratedThreeDSItem(
+fun Integrated3DSItem(
     context: Context,
     cardViewModel: CardViewModel = hiltViewModel(),
     threeDSViewModel: ThreeDSViewModel = hiltViewModel(),
+    stylingViewModel: StylingViewModel,
 ) {
     val cardUIState by cardViewModel.stateFlow.collectAsState()
     val threeDSUIState by threeDSViewModel.stateFlow.collectAsState()
@@ -37,11 +41,16 @@ fun IntegratedThreeDSItem(
     LaunchedEffect(threeDSViewModel) {
         threeDSViewModel.resetResultState()
     }
+    val threeDSAppearance by stylingViewModel.integrated3DSWidgetAppearance.collectAsState()
+    val currentOrDefaultAppearance = threeDSAppearance ?: ThreeDSAppearanceDefaults.appearance()
     val cardToken = cardUIState.token
     val threeDSToken = threeDSUIState.token
     when {
         !threeDSToken.isNullOrBlank() -> {
-            Integrated3DSWidget(token = threeDSToken) { result ->
+            Integrated3DSWidget(
+                config = ThreeDSConfig(token = threeDSToken),
+                appearance = currentOrDefaultAppearance
+            ) { result ->
                 result.onSuccess {
                     Log.d("[Integrated3DSWidget]", "Success: $it")
                     Toast.makeText(context, "3DS Result returned [$it]", Toast.LENGTH_SHORT).show()
