@@ -622,13 +622,17 @@ platform :android do
             # This lane automates the process of creating a release on GitLab.
             # It is designed to be triggered when a new tag is pushed to the 'release' branch.
 
-            # Get the version tag using the unified helper function
-            version_tag = get_version_tag(options)
+           # Extract the version tag from the options, environment variables, or Git tags.
+           # If 'version' is passed as an option, it's used; otherwise, CI_COMMIT_TAG is checked.
+           # If neither is available, it falls back to the latest Git tag.
+           version_tag = options[:version] || ENV["CI_COMMIT_TAG"] || sh("git describe --tags --abbrev=0").strip
+           # Remove the leading 'v' from the version tag if present.
+           version_tag = version_tag.gsub(/^v/, '')
 
-            # Ensure a version tag is available; otherwise, raise an error.
-            if version_tag == "unknown"
-                UI.user_error!("No version tag could be determined. Ensure you pass 'version' as an option, set CI_COMMIT_TAG, or have git tags available.")
-            end
+           # Ensure a version tag is available; otherwise, raise an error.
+           if version_tag == "unknown"
+               UI.user_error!("No version tag could be determined. Ensure you pass 'version' as an option, set CI_COMMIT_TAG, or have git tags available.")
+           end
 
             # Extract information from environment variables.
             # These variables are typically set by the CI/CD pipeline.
