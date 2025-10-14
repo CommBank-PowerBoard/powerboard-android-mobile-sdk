@@ -37,6 +37,7 @@ import kotlin.reflect.KClass
  * - **[CardDetailsException]**: Delegates mapping to `mapCardDetailsApiException`.
  * - **[GiftCardException]**: Delegates mapping to `mapGiftCardDetailsApiException`.
  * - **[AfterpayException]**: Delegates mapping to `mapAfterpayApiException`.
+ * - **[ColesPayException]**: Delegates mapping to `mapColesPayApiException`.
  * - **[GooglePayException]**: Delegates mapping to `mapGooglePayApiException`.
  * - **[PayPalException]**: Delegates mapping to `mapPayPalApiException`.
  * - **[PayPalVaultException]**: Delegates mapping to `mapPayPalVaultException`.
@@ -223,6 +224,9 @@ internal fun Throwable.mapPayPalApiException(exceptionClass: KClass<out PayPalEx
 
                 PayPalException.FetchingUrlException::class ->
                     PayPalException.FetchingUrlException(error = this.error)
+
+                PayPalException.GetPayPalClientIdException::class ->
+                    PayPalException.GetPayPalClientIdException(error = this.error)
 
                 else -> PayPalException.UnknownException(
                     displayableMessage = this.message ?: MobileSDKConstants.General.Errors.DEFAULT_ERROR

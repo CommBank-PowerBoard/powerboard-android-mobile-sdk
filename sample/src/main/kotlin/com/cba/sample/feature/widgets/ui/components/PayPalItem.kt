@@ -15,11 +15,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.cba.sample.BuildConfig
 import com.cba.sample.core.CHARGE_TRANSACTION_ERROR
 import com.cba.sample.feature.style.StylingViewModel
 import com.cba.sample.feature.wallet.presentation.WalletViewModel
 import com.paydock.core.domain.error.displayableMessage
 import com.paydock.core.domain.error.toError
+import com.paydock.feature.paypal.checkout.domain.model.integration.PayPalWidgetConfig
 import com.paydock.feature.paypal.checkout.presentation.PayPalAppearanceDefaults
 import com.paydock.feature.paypal.checkout.presentation.PayPalWidget
 import com.paydock.feature.wallet.domain.model.integration.WalletType
@@ -37,6 +39,11 @@ fun PayPalItem(
         modifier = Modifier
             .fillMaxWidth()
             .padding(16.dp),
+        config = PayPalWidgetConfig(
+            accessToken = BuildConfig.WIDGET_ACCESS_TOKEN,
+            gatewayId = BuildConfig.GATEWAY_ID_PAY_PAL,
+            fundingSource = PayPalWidgetConfig.PayPalFundingSource.PAYPAL
+        ),
         tokenRequest = walletViewModel.getWalletTokenResultCallback(WalletType.PAY_PAL),
         appearance = currentOrDefaultAppearance
     ) { result ->

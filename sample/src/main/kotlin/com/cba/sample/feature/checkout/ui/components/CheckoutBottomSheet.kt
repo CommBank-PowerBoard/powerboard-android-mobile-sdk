@@ -16,6 +16,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -45,7 +46,8 @@ fun CheckoutBottomSheet(
             WidgetType.PAY_PAL,
             WidgetType.AFTER_PAY
         )
-    var selectedTab by remember { mutableStateOf(supportedPaymentMethods.first()) }
+    // Use rememberSaveable to preserve selectedTab across configuration changes
+    var selectedTab by rememberSaveable { mutableStateOf(supportedPaymentMethods.first()) }
     SdkBottomSheet(
         bottomSheetState = bottomSheetState,
         onDismissRequest = onDismissRequest,

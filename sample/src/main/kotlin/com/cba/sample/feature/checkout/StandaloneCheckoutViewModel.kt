@@ -26,6 +26,7 @@ import com.cba.sample.feature.wallet.data.api.dto.InitiateWalletRequest
 import com.cba.sample.feature.wallet.data.model.WalletCharge
 import com.cba.sample.feature.wallet.domain.usecase.CaptureWalletChargeUseCase
 import com.cba.sample.feature.wallet.domain.usecase.InitiateWalletTransactionUseCase
+import com.paydock.core.domain.error.exceptions.GooglePayException
 import com.paydock.core.presentation.util.WidgetLoadingDelegate
 import com.paydock.feature.card.domain.model.integration.CardResult
 import com.paydock.feature.threeDS.integrated.domain.model.integration.Integrated3DSResult
@@ -250,14 +251,8 @@ class StandaloneCheckoutViewModel @Inject constructor(
                 }
             }
             result.onFailure {
-                _stateFlow.update { state ->
-                    callback(Result.failure(it))
-                    state.copy(
-                        walletChargeResult = null,
-                        isLoading = false,
-                        error = it.message ?: WALLET_INITIALISE_ERROR
-                    )
-                }
+                // Failure is pushed to the SDK and returned
+                callback(Result.failure(it))
             }
         }
     }
@@ -267,7 +262,7 @@ class StandaloneCheckoutViewModel @Inject constructor(
             createSessionVaultToken(it.token)
         }.onFailure {
             _stateFlow.update { state ->
-                state.copy(error = TOKENISE_CARD_ERROR)
+                state.copy(error = it.message ?: TOKENISE_CARD_ERROR)
             }
         }
     }
@@ -279,7 +274,7 @@ class StandaloneCheckoutViewModel @Inject constructor(
             createSessionVaultToken(cardToken = it)
         }.onFailure {
             _stateFlow.update { state ->
-                state.copy(error = TOKENISE_CLICK_TO_PAY_ERROR)
+                state.copy(error = it.message ?: TOKENISE_CLICK_TO_PAY_ERROR)
             }
         }
     }
@@ -329,10 +324,18 @@ class StandaloneCheckoutViewModel @Inject constructor(
                         cardToken = null
                     )
                 }
-                _toastEvents.send("Transaction Complete📋: \nStatus ⏳: [${charge.resource.data?.status}]")
+                _toastEvents.send("Transaction Complete📋: \nSuccess ✅: [${charge.resource.data?.status}]")
             }.onFailure {
-                _stateFlow.update { state ->
-                    state.copy(isLoading = false, error = it.message ?: CHARGE_TRANSACTION_ERROR)
+                if (it is GooglePayException.SDKException) {
+                    // This just allows us to dismiss the bottom sheet
+                    _toastEvents.send("Transaction Complete📋: \nError ❌: [${it.statusCodeString} ${it.message} ]")
+                } else {
+                    _stateFlow.update { state ->
+                        state.copy(
+                            isLoading = false,
+                            error = it.message ?: CHARGE_TRANSACTION_ERROR
+                        )
+                    }
                 }
             }
         }
