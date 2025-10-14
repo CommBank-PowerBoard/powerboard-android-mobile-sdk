@@ -1,5 +1,10 @@
 ![GitHub Release](https://img.shields.io/github/v/release/CommBank-PowerBoard/powerboard-android-mobile-sdk)
 [![](https://www.jitpack.io/v/CommBank-PowerBoard/powerboard-android-mobile-sdk.svg)](https://www.jitpack.io/#CommBank-PowerBoard/powerboard-android-mobile-sdk)
+![Pipeline Status](https://gitlab.com/paydock/bounded-contexts/mobile/mobile-sdk-android-powerboard/badges/main/pipeline.svg)
+![Coverage](https://gitlab.com/paydock/bounded-contexts/mobile/mobile-sdk-android-powerboard/badges/main/coverage.svg)
+![Kotlin](https://img.shields.io/badge/kotlin-2.2.20-7F52FF?logo=kotlin&logoColor=white)
+![Android Min SDK](https://img.shields.io/badge/minSdk-24-3DDC84?logo=android&logoColor=white)
+![Compile SDK](https://img.shields.io/badge/compileSdk-36-3DDC84?logo=android&logoColor=white)
 
 # Project Description
 
@@ -97,3 +102,24 @@ MERCHANT_IDENTIFIER= your_merchant_identifier
 *   `preprodDebug`
 *   `prodDebug`
 4.  **Run the App:** Click the "Run" button (green play icon) in Android Studio to build and run the sample app on an emulator or a connected device.
+
+## Android notes: WebView-based flows and rotation
+
+For JS-driven webflows (Click to Pay, 3DS), the JS runtime inside the WebView will reinitialize if the hosting Activity is recreated (e.g., orientation change). To avoid losing in-page state:
+
+- Prefer hosting these flows in a dedicated Activity and opt out of Activity recreation for orientation/size changes:
+
+```xml
+<activity
+    android:name=".feature.WebActivity"
+    android:exported="true"
+    android:launchMode="singleTop"
+    android:configChanges="orientation|screenSize"
+    android:windowSoftInputMode="adjustResize" />
+```
+
+Apply the same to 3DS demo Activities. The SDK also:
+- Uses saveable WebView state and stable HTML generation to minimize reloads.
+- Avoids persisting sensitive card data (PAN/CVV/expiry) across process death; rely on OS Autofill to re-fill when needed.
+
+If you cannot opt out of recreation, pass a resumable session/token to the widget config so the flow can re-bootstrap after restore.

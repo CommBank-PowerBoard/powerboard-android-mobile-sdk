@@ -53,13 +53,6 @@ class WalletViewModel @Inject constructor(private val initiateWalletTransactionU
             }
             result.onFailure {
                 callback(Result.failure(it))
-                _stateFlow.update { state ->
-                    state.copy(
-                        walletChargeResult = null,
-                        isLoading = false,
-                        error = it.message ?: CHARGE_TRANSACTION_ERROR
-                    )
-                }
             }
         }
     }

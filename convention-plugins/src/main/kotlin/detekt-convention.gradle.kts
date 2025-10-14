@@ -34,7 +34,7 @@ dependencies {
 }
 
 tasks.withType<Detekt>().configureEach {
-    jvmTarget = JavaVersion.VERSION_1_8.toString()
+    jvmTarget = JavaVersion.VERSION_17.toString()
     reports {
         // Enable/Disable XML report (default: true)
         xml.required.set(true)
@@ -45,17 +45,19 @@ tasks.withType<Detekt>().configureEach {
         // Enable/Disable TXT report (default: true)
         txt.required.set(true) // similar to the console output, contains issue signature to manually edit baseline files
         txt.outputLocation.set(file("build/reports/detekt.txt"))
-        // Enable/Disable SARIF report (default: false)
+        // Enable/Disable SARIF report (default: false) - GitLab Code Quality format
         sarif.required.set(true)
         sarif.outputLocation.set(file("build/reports/detekt.sarif"))
         // Enable/Disable MD report (default: false)
         md.required.set(true) // simple Markdown format
         md.outputLocation.set(file("build/reports/detekt.md"))
     }
+    // Generate reports for GitLab Code Quality integration - don't fail build
+    ignoreFailures = true
 }
 
 tasks.withType<DetektCreateBaselineTask>().configureEach {
-    jvmTarget = JavaVersion.VERSION_1_8.toString()
+    jvmTarget = JavaVersion.VERSION_17.toString()
 }
 
 val analysisDir = file(projectDir)
@@ -94,10 +96,25 @@ val detektAll by tasks.registering(Detekt::class) {
     include(kotlinScriptFiles)
     exclude(resourceFiles)
     exclude(buildFiles)
+    // Generate reports for GitLab Code Quality integration - don't fail build
+    ignoreFailures = true
     reports {
-        xml.required.set(false)
-        html.required.set(false)
-        txt.required.set(false)
+        // Enable reports for GitLab Code Quality - use absolute paths for CI
+        xml.required.set(true)
+        xml.outputLocation.set(file("${project.rootDir}/mobile-sdk/build/reports/detekt-all.xml"))
+        html.required.set(true)
+        html.outputLocation.set(file("${project.rootDir}/mobile-sdk/build/reports/detekt-all.html"))
+        sarif.required.set(true)
+        sarif.outputLocation.set(file("${project.rootDir}/mobile-sdk/build/reports/detekt-all.sarif"))
+        txt.required.set(true)
+        txt.outputLocation.set(file("${project.rootDir}/mobile-sdk/build/reports/detekt-all.txt"))
+        md.required.set(true)
+        md.outputLocation.set(file("${project.rootDir}/mobile-sdk/build/reports/detekt-all.md"))
+    }
+
+    // Ensure reports directory exists before running
+    doFirst {
+        file("${project.rootDir}/mobile-sdk/build/reports").mkdirs()
     }
 }
 

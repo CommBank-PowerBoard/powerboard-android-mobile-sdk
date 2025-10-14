@@ -47,7 +47,7 @@ internal class PayPalDataCollectorUtilTest : BaseUnitTest() {
         // Configure the getApplicationContext() method to return the mock Context
         every { context.applicationContext } returns context
 
-        val environment = Environment.PRE_PRODUCTION
+        val environment = Environment.STAGING
         context.initializeMobileSDK(environment)
     }
 

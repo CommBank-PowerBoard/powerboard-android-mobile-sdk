@@ -34,6 +34,7 @@ import com.cba.sample.feature.style.ui.components.section.StyleGiftCardMiscSecti
 import com.cba.sample.feature.style.ui.components.section.StyleGooglePayMiscSection
 import com.cba.sample.feature.style.ui.components.section.StyleIconSection
 import com.cba.sample.feature.style.ui.components.section.StyleLoaderSection
+import com.cba.sample.feature.style.ui.components.section.StylePayPalMiscSection
 import com.cba.sample.feature.style.ui.components.section.StyleTextFieldSection
 import com.cba.sample.feature.style.ui.components.section.StyleTextSection
 import com.cba.sample.feature.style.ui.components.section.StyleToggleSection
@@ -51,6 +52,7 @@ import com.paydock.feature.afterpay.presentation.AfterpayWidgetAppearance
 import com.paydock.feature.card.presentation.CardDetailsWidgetAppearance
 import com.paydock.feature.card.presentation.GiftCardWidgetAppearance
 import com.paydock.feature.googlepay.presentation.GooglePayWidgetAppearance
+import com.paydock.feature.paypal.checkout.presentation.PayPalWidgetAppearance
 
 @Composable
 fun StylePropertiesScreen(
@@ -179,6 +181,22 @@ fun StylePropertiesScreen(
                                 StyleGooglePayMiscSection(
                                     currentAppearance = currentAppearance,
                                     onAppearanceChange = { newAppearance: GooglePayWidgetAppearance ->
+                                        stylingViewModel.updateWidgetComponentAppearance(
+                                            widgetContext,
+                                            styleItemName,
+                                            newAppearance
+                                        )
+                                    }
+                                )
+                            }
+                                ?: Text("$styleItemName appearance not available for $widgetContext")
+                        }
+
+                        WidgetType.PAY_PAL -> {
+                            (componentAppearance as? PayPalWidgetAppearance)?.let { currentAppearance ->
+                                StylePayPalMiscSection(
+                                    currentAppearance = currentAppearance,
+                                    onAppearanceChange = { newAppearance ->
                                         stylingViewModel.updateWidgetComponentAppearance(
                                             widgetContext,
                                             styleItemName,
@@ -494,6 +512,7 @@ fun getAppearanceForWidgetComponent(
             remember(paypalAppearance, styleItemName) {
                 derivedStateOf {
                     when (styleItemName) {
+                        StyleAppearanceComponent.PROPERTIES -> paypalAppearance
                         StyleAppearanceComponent.LOADER -> paypalAppearance?.loader
                         else -> null
                     }

@@ -33,7 +33,7 @@ internal abstract class BaseUITest : KoinTest {
         // Configure the getApplicationContext() method to return the mock Context
         every { context.applicationContext } returns context
 
-        val environment = Environment.SANDBOX
+        val environment = Environment.PRE_PRODUCTION
 
         context.initializeMobileSDK(environment)
     }

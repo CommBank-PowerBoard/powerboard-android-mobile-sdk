@@ -24,6 +24,7 @@ import com.cba.sample.core.MERCHANT_NAME
 import com.cba.sample.feature.style.StylingViewModel
 import com.cba.sample.feature.wallet.presentation.WalletViewModel
 import com.paydock.core.domain.error.displayableMessage
+import com.paydock.core.domain.error.exceptions.GooglePayException
 import com.paydock.core.domain.error.toError
 import com.paydock.feature.googlepay.domain.model.GooglePayWidgetConfig
 import com.paydock.feature.googlepay.presentation.GooglePayAppearanceDefaults
@@ -71,13 +72,16 @@ fun GooglePayItem(
             Log.d("[GooglePayWidget]", "Success: $it")
             Toast.makeText(context, "Google Pay Result returned [$it]", Toast.LENGTH_SHORT).show()
         }.onFailure {
-            val error = it.toError()
-            Log.d("[GooglePayWidget]", "Failure: ${error.displayableMessage}")
-            Toast.makeText(
-                context,
-                "Google Pay Result failed! [${error.displayableMessage}]",
-                Toast.LENGTH_SHORT
-            ).show()
+            // If it's a SDK exception, assume it's being handled internally
+            if (it !is GooglePayException.SDKException) {
+                val error = it.toError()
+                Log.d("[GooglePayWidget]", "Failure: ${error.displayableMessage}")
+                Toast.makeText(
+                    context,
+                    "Google Pay Result failed! [${error.displayableMessage}]",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
         }
     }
     when {

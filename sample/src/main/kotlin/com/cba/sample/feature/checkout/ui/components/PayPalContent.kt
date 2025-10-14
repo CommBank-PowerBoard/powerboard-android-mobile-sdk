@@ -5,6 +5,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import com.cba.sample.BuildConfig
 import com.cba.sample.feature.style.StylingViewModel
 import com.paydock.core.presentation.util.WidgetLoadingDelegate
 import com.paydock.feature.paypal.checkout.domain.model.integration.PayPalWidgetConfig
@@ -26,7 +27,10 @@ fun PayPalContent(
     PayPalWidget(
         modifier = Modifier.fillMaxWidth(),
         config = PayPalWidgetConfig(
-            requestShipping = false
+            accessToken = BuildConfig.WIDGET_ACCESS_TOKEN,
+            gatewayId = BuildConfig.GATEWAY_ID_PAY_PAL,
+            requestShipping = false,
+            fundingSource = PayPalWidgetConfig.PayPalFundingSource.PAY_LATER
         ),
         appearance = currentOrDefaultAppearance,
         enabled = enabled,
